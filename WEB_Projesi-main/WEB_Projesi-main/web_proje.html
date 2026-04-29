@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+
+<!-- Türkçe karakter kullanımında sıkıntıları engellemek için lang="tr" olarak ayarlandı. -->
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="description" content="Bu proje WEB Tabanlı Programlama Dersi kapsamında yapılmıştır.">
+    <meta name="author" content="Alperen Namlı, Halil Hüseyin Çalışkan, Muhammed Emin Uysal, Nurullah Harun Köse, Recep Doruk">
+    <meta name="keys" content="HTML,CSS,Javascript,Oyun">
+
+    <!-- UTF-8 ayarı yapılıp karakter yazımından kaynaklaı hatalar engellendi.
+    Proje de kimlerin görev aldığı ve projenin ne hakkında olduğu meta etiketi içerisinde belirtildi.
+    -->
+
+    <style>
+
+
+        .body{
+            margin: 0px;
+            padding: 0px;
+        }
+        /*Genellikle web sitelerinde kullanıldığı için ve hizalamayı  sıfırdan aldığı için tercih edildi.*/
+        .resimler{
+            display: none;
+        }
+        /* Resimleri tutan div'in gözükmemesi için yapıldı.*/
+
+        .arka_plan_animasyon{
+
+            width: 100%;
+            height: 100vh;
+            background-size: cover;
+            position: absolute;
+            top:0;
+            left:0;
+            animation: animasyon_yap 80s infinite;
+
+        }
+        /* Öyle bir div tanımlandı ki bu div'in bouyutu tüm sayfayı kaplıyor ve (position:absolute) diyerek manuel ayarlamalar yapabiliyoruz.*/
+        /* Arka planın belirli bir sıraya göre toplam süresi 80 saniye olacak şekilde sürekli değişmesi için animasyon tanımlandı.*/
+
+        @keyframes animasyon_yap{
+
+            0%, 8% {
+                background-image: url(images/uzay1.png);
+            }
+            10%, 18% {
+                background-image: url(images/uzay2.png);
+            }
+            20%, 28% {
+                background-image: url(images/uzay3.png);
+            }
+            30%, 38% {
+                background-image: url(images/uzay4.png);
+            }
+            40%, 48% {
+                background-image: url(images/uzay5.png);
+            }
+            50%, 58% {
+                background-image: url(images/uzay6.png);
+            }
+            60%, 68% {
+                background-image: url(images/uzay7.png);
+            }
+            70%, 78% {
+                background-image: url(images/uzay8.png);
+            }
+            80%, 88% {
+                background-image: url(images/uzay9.png);
+            }
+            90%, 94% {
+                background-image: url(images/uzay10.png);
+            }
+            96%, 100% {
+                background-image: url(images/uzay1.png);
+            }
+        }
+        /*Animasyonun temel görevi toplamda 10 farklı uzay resmini belirli bir süre arka planda tutarak yer değiştirmesidir bunun için zaman aralıkları belirlenir.*/
+
+        .buton1{
+            position: absolute;
+            width: 10%;
+            height: 10vh;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            border-radius: 15px;
+            background-color: #7CAAE6;
+            font-weight: bold;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: large;
+            transition: all 0.4s;
+        }
+        /*Buton manuel olarak hizalanır ve konumu sayfanın tam ortasına getirilir. Standart CSS özellikler eklenir(köşe yumuşatma,renk ayarlama vb..)*/
+
+        .buton1:hover{
+            cursor: pointer;
+            background-color: #3B8EFF;
+            transform: translate(-50%,-50%) scale(1.2);
+
+        }
+        /*Butonun üzerine gelince butonda değişimler olur (renk ve boyut) bu değişimlerin süresi ise transition özelliği ile sağlanır.*/
+
+    
+
+    </style>
+    
+    <script>
+// 1. Değişkenleri Tanımlayalım
+let canvas, ctx;
+let oyunDevamEdiyor = false;
+
+// Oyuncu (roket) Objesi
+let roket = {
+    x: 100,
+    y: 100,
+    boyut: 100,
+    hiz: 6,
+    renk: "#3B8EFF"
+};
+const roketGorseli = new Image();
+        roketGorseli.src = 'images/roket.png'; // Yüklediğin dosya adı
+        roket.resim = roketGorseli;
+
+// Basılan tuşları takip etmek için bir liste
+let tuslar = {};
+let meteorlar = [];
+let meteorHizi = 4;
+const meteorGorseli = new Image();
+meteorGorseli.src = 'images/meteor.png'; 
+
+// 2. Butona tıklandığında çalışacak fonksiyon
+function buton_giris() {
+    // Menü butonunu gizle
+    var buton = document.getElementById("buton_id_1");
+    buton.style.display = "none";
+
+    // Canvas (Oyun alanı) oluştur ve ekrana ekle
+    canvas = document.createElement("canvas");
+    ctx = canvas.getContext("2d");
+    
+    // Canvas'ı tüm ekranı kaplayacak şekilde ayarla
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.position = "absolute";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.zIndex = "10"; // Arka plan animasyonunun üstünde durması için
+    
+    document.body.appendChild(canvas);
+	// EKRAN BOYUTU DEĞİŞİNCE CANVAS'I GÜNCELLE
+	window.addEventListener('resize', function() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+	
+	// 3. Roketin başlangıç pozisyonunu ekranın ortası yap
+            roket.x = canvas.width / 2 - roket.boyut / 2;
+            roket.y = canvas.height / 2 - roket.boyut / 2;
+
+    // Klavye dinleyicilerini başlat
+    window.addEventListener("keydown", (e) => { tuslar[e.key] = true; });
+    window.addEventListener("keyup", (e) => { tuslar[e.key] = false; });
+
+    // Oyun döngüsünü başlat
+    oyunDevamEdiyor = true;
+    oyun_dongusu();
+}
+function meteorOlustur() {
+    let boyut = Math.random() * (80 - 40) + 40; // 40px ile 80px arası rastgele boyut
+    let x = Math.random() * (canvas.width - boyut);
+    
+    meteorlar.push({
+        x: x,
+        y: -boyut, // Ekranın hemen dışından başlasın
+        boyut: boyut,
+        hiz: Math.random() * 3 + meteorHizi // Her meteorun hızı biraz farklı olsun
+    });
+}
+
+// 3. Ana Oyun Döngüsü (Her saniye 60 kez çalışır)
+function oyun_dongusu() {
+    if (!oyunDevamEdiyor) return;
+
+    guncelle();
+    ciz();
+
+    requestAnimationFrame(oyun_dongusu);
+}
+
+// 4. Hesaplama Kısmı (Hareketler, çarpışmalar burada hesaplanır)
+function guncelle() {
+            // Klavye Kontrolleri (WASD & Yön Tuşları)
+            if (tuslar["ArrowUp"] || tuslar["w"]) roket.y -= roket.hiz;
+            if (tuslar["ArrowDown"] || tuslar["s"]) roket.y += roket.hiz;
+            if (tuslar["ArrowLeft"] || tuslar["a"]) roket.x -= roket.hiz;
+            if (tuslar["ArrowRight"] || tuslar["d"]) roket.x += roket.hiz;
+
+            // Ekran Sınır Kontrolü (Roket dışarı çıkmasın)
+            if (roket.x < 0) roket.x = 0;
+            if (roket.y < 0) roket.y = 0;
+            if (roket.x + roket.boyut > canvas.width) roket.x = canvas.width - roket.boyut;
+            if (roket.y + roket.boyut > canvas.height) roket.y = canvas.height - roket.boyut;
+			
+			// Her 60 karede bir (yaklaşık 1 saniye) yeni meteor oluştur
+if (Math.random() < 0.02) { 
+    meteorOlustur();
+}
+
+// Meteorları hareket ettir
+for (let i = 0; i < meteorlar.length; i++) {
+    meteorlar[i].y += meteorlar[i].hiz;
+
+    // Ekrandan çıkan meteorları sil (Performans için önemli)
+    if (meteorlar[i].y > canvas.height) {
+        meteorlar.splice(i, 1);
+        i--;
+    }
+}
+        }
+
+// 5. Çizim Kısmı (Her şey ekrana burada basılır)
+function ciz() {
+            // Ekranı temizle (Şeffaf olarak)
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Roket resmini çiz
+            // Eğer resim yüklenmediyse hata vermemesi için kontrol
+            if (roket.resim.complete) {
+                ctx.drawImage(roket.resim, roket.x, roket.y, roket.boyut, roket.boyut);
+            } else {
+                // Resim yüklenene kadar geçici bir kare çizebiliriz
+                ctx.fillStyle = "white";
+                ctx.fillRect(roket.x, roket.y, roket.boyut, roket.boyut);
+            }
+		meteorlar.forEach(meteor => {
+    if (meteorGorseli.complete) {
+        ctx.drawImage(meteorGorseli, meteor.x, meteor.y, meteor.boyut, meteor.boyut);
+    } else {
+        ctx.fillStyle = "gray";
+        ctx.beginPath();
+        ctx.arc(meteor.x + meteor.boyut/2, meteor.y + meteor.boyut/2, meteor.boyut/2, 0, Math.PI*2);
+        ctx.fill();
+    }
+});	
+		
+		
+		}
+	</script>
+
+
+</head>
+
+<body>
+
+    <div class="resimler">
+        <img src="images/uzay1.png">
+        <img src="images/uzay2.png">
+        <img src="images/uzay3.png">
+        <img src="images/uzay4.png">
+        <img src="images/uzay5.png">
+        <img src="images/uzay6.png">
+        <img src="images/uzay7.png">
+        <img src="images/uzay8.png">
+        <img src="images/uzay9.png">
+        <img src="images/uzay10.png">
+		<img src="images/roket.png" id="roket_pre">
+    </div>
+    <!-- resimlerin animasyon sırasında yüklenmesinden kaynaklanan problemlerin önüne geçek için class'ı resimler olan bir div oluşturuldu.
+    Bu div'in amacı style etiketinde belirtildiği gibi resimleri önceden yüklemektir.-->
+
+    <div class="arka_plan_animasyon"></div>
+    <!-- Sayfanın arka planında sürekli animasyon yapılması için boş bir div oluşturulur.-->
+
+    <button class="buton1" onclick="buton_giris()"  id="buton_id_1">Oyuna Başla</button>
+    <!-- Oyuna giriş butona tıklayınca olacak şeyler için Javascript ile bir fonksiyon oluşturulur.-->
+
+
+</body>
+
+</html>
