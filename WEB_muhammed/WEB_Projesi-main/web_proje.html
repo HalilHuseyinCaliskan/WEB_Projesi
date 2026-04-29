@@ -18,7 +18,7 @@
     <style>
 
 
-        .body{
+        body{
             margin: 0px;
             padding: 0px;
         }
@@ -115,12 +115,22 @@ let oyunDevamEdiyor = false;
 
 // Oyuncu (roket) Objesi
 let roket = {
-    x: 100,
-    y: 100,
-    boyut: 80,
-    hiz: 3,
-    renk: "#3B8EFF"
-};
+            x: 100,
+            y: 100,
+            vx: 0, // Yatay hız
+            vy: 0, // Dikey hız
+            ivme: 0.4, // Hızlanma gücü
+            surtunme: 0.96, // Yavaşlama oranı
+            boyut: 80,
+            can: 100,
+            maksCan: 100
+        };
+let toplananKediler = 0;
+let hedefKediSayisi = 30;
+let seviye = 1;
+let kediler = [];
+const kediGorseli = new Image();
+        kediGorseli.src = 'images/kedi.png';
 const roketGorseli = new Image();
         roketGorseli.src = 'images/roket.png'; // Yüklediğin dosya adı
         roket.resim = roketGorseli;
@@ -129,7 +139,7 @@ const gezegenGorseli = new Image();
 gezegenGorseli.src = 'images/gezegen.png'; // images klasörüne bir gezegen resmi eklemelisin
 
 let hedef = {
-    y: -400, // Başlangıçta ekranın dışında
+    y: -450, // Başlangıçta ekranın dışında
     boyut: 400,
     mesafe: 3000, // Hedefe ulaşmak için katedilmesi gereken yol
     gorunurMu: false
@@ -138,6 +148,9 @@ let hedef = {
 let tuslar = {};
 let meteorlar = [];
 let meteorHizi = 0.5;
+let partikuller = []; // Partikül sistemi dizisi
+let yildizlar = [];    // Dinamik yıldızlar dizisi
+let sarsintiSuresi = 0; // Ekran sallanması için sayaç
 const meteorGorseli = new Image();
 meteorGorseli.src = 'images/meteor.png'; 
 
@@ -161,6 +174,15 @@ function buton_giris() {
     
     document.body.appendChild(canvas);
 	// EKRAN BOYUTU DEĞİŞİNCE CANVAS'I GÜNCELLE
+for(let i=0; i<100; i++) {
+                yildizlar.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    hiz: Math.random() * 3 + 1,
+                    boyut: Math.random() * 2
+                });
+            }
+
 	window.addEventListener('resize', function() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -178,6 +200,29 @@ function buton_giris() {
     oyunDevamEdiyor = true;
     oyun_dongusu();
 }
+// Partikül Oluşturma Fonksiyonu
+        function partikulOlustur(x, y, renk, adet) {
+            for (let i = 0; i < adet; i++) {
+                partikuller.push({
+                    x: x,
+                    y: y,
+                    vx: Math.random() * 6 - 3,
+                    vy: Math.random() * 6 - 3,
+                    omur: 1.0,
+                    renk: renk
+                });
+            }
+        }
+		
+function kediOlustur() {
+     let boyut = 50;
+     let x = Math.random() * (canvas.width - boyut);
+      kediler.push({
+         x: x, y: -boyut,
+          boyut: boyut,
+            hiz: Math.random() * 1 + 2
+            });
+        }
 function meteorOlustur() {
     let boyut = Math.random() * (80 - 40) + 40; // 40px ile 80px arası rastgele boyut
     let x = Math.random() * (canvas.width - boyut);
@@ -201,95 +246,183 @@ function oyun_dongusu() {
 }
 
 function guncelle() {
-    // 1. Karakter Hareketleri
-    if (tuslar["ArrowUp"] || tuslar["w"]) roket.y -= roket.hiz;
-    if (tuslar["ArrowDown"] || tuslar["s"]) roket.y += roket.hiz;
-    if (tuslar["ArrowLeft"] || tuslar["a"]) roket.x -= roket.hiz;
-    if (tuslar["ArrowRight"] || tuslar["d"]) roket.x += roket.hiz;
+            // Momentum Hareketi
+            if (tuslar["ArrowUp"] || tuslar["w"]) roket.vy -= roket.ivme;
+            if (tuslar["ArrowDown"] || tuslar["s"]) roket.vy += roket.ivme;
+            if (tuslar["ArrowLeft"] || tuslar["a"]) roket.vx -= roket.ivme;
+            if (tuslar["ArrowRight"] || tuslar["d"]) roket.vx += roket.ivme;
 
-    // 2. Ekran Sınırları
-    if (roket.x < 0) roket.x = 0;
-    if (roket.y < 0) roket.y = 0;
-    if (roket.x + roket.boyut > canvas.width) roket.x = canvas.width - roket.boyut;
-    if (roket.y + roket.boyut > canvas.height) roket.y = canvas.height - roket.boyut;
+            roket.vx *= roket.surtunme;
+            roket.vy *= roket.surtunme;
+            roket.x += roket.vx;
+            roket.y += roket.vy;
 
-    // 3. Hedefe Yaklaşma
-    if (hedef.mesafe > 0) {
-        hedef.mesafe -= 1; // Sen ilerledikçe mesafe azalıyor
-    } else {
-        hedef.gorunurMu = true;
-        hedef.y += 1; // Gezegen yavaşça görüş alanına giriyor
-    }
+            // Egzoz Partikülleri
+            if (Math.abs(roket.vx) > 0.5 || Math.abs(roket.vy) > 0.5) {
+                partikulOlustur(roket.x + roket.boyut / 2, roket.y + roket.boyut - 10, "orange", 1);
+            }
 
-    // 4. Meteor Hareketleri ve Çarpışma
-    if (Math.random() < 0.01) { meteorOlustur(); } // Daha seyrek meteor
+            // Ekran Sınırları
+            if (roket.x < 0) { roket.x = 0; roket.vx *= -0.5; }
+            if (roket.y < 0) { roket.y = 0; roket.vy *= -0.5; }
+            if (roket.x + roket.boyut > canvas.width) { roket.x = canvas.width - roket.boyut; roket.vx *= -0.5; }
+            if (roket.y + roket.boyut > canvas.height) { roket.y = canvas.height - roket.boyut; roket.vy *= -0.5; }
 
-    for (let i = 0; i < meteorlar.length; i++) {
-        let m = meteorlar[i];
-        m.y += m.hiz; // Meteorlar çok yavaş hareket eder
+            // Yıldızlar
+            yildizlar.forEach(y => {
+                y.y += y.hiz;
+                if (y.y > canvas.height) y.y = 0;
+            });
 
-        // --- ÇARPIŞMA TESTİ ---
-        if (
-            roket.x < m.x + m.boyut &&
-            roket.x + roket.boyut > m.x &&
-            roket.y < m.y + m.boyut &&
-            roket.y + roket.boyut > m.y
-        ) {
-            oyunBitti();
+            // Kedi Toplama ve Hedef Kontrolü
+            if (toplananKediler < hedefKediSayisi && Math.random() < 0.015) { 
+                kediOlustur(); 
+            } else if (toplananKediler >= hedefKediSayisi) {
+                hedef.gorunurMu = true;
+            }
+
+            // Gezegen Hareketi
+            if (hedef.gorunurMu) {
+                hedef.y += 1.2;
+                // Gezegene ulaşma kontrolü
+                if (roket.y < hedef.y + hedef.boyut / 2 && Math.abs(roket.x - (canvas.width/2 - roket.boyut/2)) < 200) {
+                    seviyeAtla();
+                }
+                if (hedef.y > canvas.height) { // Gezegen kaçırılırsa tekrar belirsin
+                    hedef.y = -450;
+                }
+            }
+
+            // Meteorlar
+            if (Math.random() < 0.02) { meteorOlustur(); }
+
+            // Meteor Çarpışma
+            for (let i = 0; i < meteorlar.length; i++) {
+                let m = meteorlar[i];
+                m.y += m.hiz;
+                if (roket.x < m.x + m.boyut && roket.x + roket.boyut > m.x &&
+                    roket.y < m.y + m.boyut && roket.y + roket.boyut > m.y) {
+                    roket.can -= 20;
+                    sarsintiSuresi = 10;
+                    partikulOlustur(m.x + m.boyut / 2, m.y + m.boyut / 2, "gray", 15);
+                    meteorlar.splice(i, 1); i--;
+                    if (roket.can <= 0) { oyunBitti(); return; }
+                    continue;
+                }
+                if (m.y > canvas.height) { meteorlar.splice(i, 1); i--; }
+            }
+
+            // Kedi Toplama Çarpışma
+            for (let i = 0; i < kediler.length; i++) {
+                let k = kediler[i];
+                k.y += k.hiz;
+                if (roket.x < k.x + k.boyut && roket.x + roket.boyut > k.x &&
+                    roket.y < k.y + k.boyut && roket.y + roket.boyut > k.y) {
+                    toplananKediler++;
+                    partikulOlustur(k.x + k.boyut / 2, k.y + k.boyut / 2, "#f39c12", 10);
+                    kediler.splice(i, 1); i--;
+                    continue;
+                }
+                if (k.y > canvas.height) { kediler.splice(i, 1); i--; }
+            }
+
+            // Partikül Güncelleme
+            for (let i = 0; i < partikuller.length; i++) {
+                let p = partikuller[i];
+                p.x += p.vx; p.y += p.vy; p.omur -= 0.02;
+                if (p.omur <= 0) { partikuller.splice(i, 1); i--; }
+            }
+
+            if (sarsintiSuresi > 0) sarsintiSuresi--;
         }
-
-        if (m.y > canvas.height) {
-            meteorlar.splice(i, 1);
-            i--;
+function seviyeAtla() {
+meteorlar = []; // Eski meteorları sil
+    kediler = [];   // Eski kedileri sil
+            seviye++;
+            toplananKediler = 0;
+            hedef.gorunurMu = false;
+            hedef.y = -450;
+            meteorHizi += 0.8; // Meteorlar hızlanır
+            roket.can = Math.min(roket.can + 30, 100); // Ödül olarak can verir
+            partikulOlustur(canvas.width / 2, canvas.height / 2, "white", 50);
+            alert("Kediler Güvende! Seviye " + seviye + " başlıyor. Meteorlar daha hızlı!");
         }
-    }
-
-    // 5. Kazanma Durumu
-    if (hedef.gorunurMu && roket.y < hedef.y + hedef.boyut / 2) {
-        oyunKazandi();
-    }
-}
 // 5. Çizim Kısmı (Her şey ekrana burada basılır)
 function ciz() {
-            // Ekranı temizle (Şeffaf olarak)
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Roket resmini çiz
-            // Eğer resim yüklenmediyse hata vermemesi için kontrol
+            ctx.save();
+            if (sarsintiSuresi > 0) {
+                ctx.translate(Math.random() * 10 - 5, Math.random() * 10 - 5);
+            }
+
+            // Yıldızlar
+            ctx.fillStyle = "white";
+            yildizlar.forEach(y => { ctx.fillRect(y.x, y.y, y.boyut, y.boyut); });
+
+            // Gezegen
+            if (hedef.gorunurMu && gezegenGorseli.complete) {
+                ctx.drawImage(gezegenGorseli, (canvas.width / 2) - (hedef.boyut / 2), hedef.y, hedef.boyut, hedef.boyut);
+            }
+
+            // Kediler
+            kediler.forEach(k => {
+                if (kediGorseli.complete) ctx.drawImage(kediGorseli, k.x, k.y, k.boyut, k.boyut);
+            });
+
+            // Partiküller
+            partikuller.forEach(p => {
+                ctx.globalAlpha = p.omur;
+                ctx.fillStyle = p.renk;
+                ctx.fillRect(p.x, p.y, 3, 3);
+            });
+            ctx.globalAlpha = 1.0;
+
+            // Roket
             if (roket.resim.complete) {
                 ctx.drawImage(roket.resim, roket.x, roket.y, roket.boyut, roket.boyut);
-            } else {
-                // Resim yüklenene kadar geçici bir kare çizebiliriz
-                ctx.fillStyle = "white";
-                ctx.fillRect(roket.x, roket.y, roket.boyut, roket.boyut);
             }
-		meteorlar.forEach(meteor => {
-    if (meteorGorseli.complete) {
-        ctx.drawImage(meteorGorseli, meteor.x, meteor.y, meteor.boyut, meteor.boyut);
-    } else {
-        ctx.fillStyle = "gray";
-        ctx.beginPath();
-        ctx.arc(meteor.x + meteor.boyut/2, meteor.y + meteor.boyut/2, meteor.boyut/2, 0, Math.PI*2);
-        ctx.fill();
-    }
-	if (hedef.gorunurMu && gezegenGorseli.complete) {
-    ctx.drawImage(gezegenGorseli, (canvas.width / 2) - (hedef.boyut / 2), hedef.y, hedef.boyut, hedef.boyut);
-}
-});	
+
+            // Meteorlar
+            meteorlar.forEach(meteor => {
+                if (meteorGorseli.complete) {
+                    ctx.drawImage(meteorGorseli, meteor.x, meteor.y, meteor.boyut, meteor.boyut);
+                }
+            });
+
+            ctx.restore();
+
+            // --- UI Elemanları ---
+            // Can Barı
+            ctx.fillStyle = "#333";
+            ctx.fillRect(20, 20, 200, 20);
+            let canOrani = (roket.can / roket.maksCan);
+            ctx.fillStyle = canOrani > 0.4 ? "#2ecc71" : "#e74c3c";
+            ctx.fillRect(20, 20, 200 * canOrani, 20);
+            ctx.strokeStyle = "white";
+            ctx.strokeRect(20, 20, 200, 20);
+
+            // Kedi Sayacı ve Seviye
+            ctx.fillStyle = "white";
+            ctx.font = "bold 20px 'Times New Roman'";
+            ctx.fillText("Toplanan Kediler: " + toplananKediler + " / " + hedefKediSayisi, 20, 65);
+            ctx.fillText("Seviye: " + seviye, 20, 90);
+            
+            if (hedef.gorunurMu) {
+                ctx.fillStyle = "#f1c40f";
+                ctx.fillText("GEZEGEN GÖRÜNDÜ! KEDİLERİ ULAŞTIR!", canvas.width / 2 - 150, 100);
+            }
+        }
 		
 		
-		}
+		
 		function oyunBitti() {
     oyunDevamEdiyor = false;
     alert("Meteor çarptı! Görev başarısız.");
     location.reload(); 
 }
 
-function oyunKazandi() {
-    oyunDevamEdiyor = false;
-    alert("Tebrikler! Hedef gezegene ulaştın.");
-    location.reload();
-}
+
 	</script>
 
 
@@ -309,6 +442,8 @@ function oyunKazandi() {
         <img src="images/uzay9.png">
         <img src="images/uzay10.png">
 		<img src="images/roket.png" id="roket_pre">
+		<img src="images/meteor.png" id="meteor_pre">
+		<img src="images/gezegen.png" id="gezegen_pre">
     </div>
     <!-- resimlerin animasyon sırasında yüklenmesinden kaynaklanan problemlerin önüne geçek için class'ı resimler olan bir div oluşturuldu.
     Bu div'in amacı style etiketinde belirtildiği gibi resimleri önceden yüklemektir.-->

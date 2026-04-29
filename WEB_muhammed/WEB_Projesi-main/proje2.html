@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Uzay Macerasý - Pro Versiyon</title>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #000; }
+        .resimler { display: none; }
+        
+        /* Arka plan animasyonu devam ediyor ama biz üstüne dinamik yýldýzlar ekleyeceðiz */
+        .arka_plan_animasyon {
+            width: 100%; height: 100vh;
+            position: absolute; top:0; left:0;
+            animation: animasyon_yap 80s infinite;
+            opacity: 0.3; /* Yýldýzlarýn görünmesi için biraz kýstýk */
+        }
+
+        @keyframes animasyon_yap {
+            0% { background-image: url(images/uzay1.png); }
+            50% { background-image: url(images/uzay5.png); }
+            100% { background-image: url(images/uzay1.png); }
+        }
+
+        .buton1 {
+            position: absolute; width: 200px; height: 60px;
+            top: 50%; left: 50%; transform: translate(-50%,-50%);
+            border-radius: 15px; background-color: #7CAAE6;
+            font-weight: bold; font-family: sans-serif; cursor: pointer;
+            z-index: 100; transition: 0.4s;
+        }
+        .buton1:hover { transform: translate(-50%,-50%) scale(1.1); background-color: #3B8EFF; }
+    </style>
+</head>
+<body>
+
+    <div class="resimler">
+        <img src="images/roket.png" id="roket_img">
+        <img src="images/meteor.png" id="meteor_img">
+        <img src="images/gezegen.png" id="gezegen_img">
+    </div>
+
+    <div class="arka_plan_animasyon"></div>
+    <button class="buton1" onclick="buton_giris()" id="buton_id_1">Görevi Baþlat</button>
+
+<script>
+let canvas, ctx;
+let oyunDevamEdiyor = false;
+
+// 1. Momentum ve Can Sistemi Ýçin Roket Güncellemesi
+let roket = {
+    x: 0, y: 0,
+    vx: 0, vy: 0, // Hýz vektörleri (Momentum)
+    ivme: 0.5,     // Hýzlanma gücü
+    surtunme: 0.95, // Yavaþlama oraný
+    boyut: 60,
+    can: 100,      // Can Barý
+    maksCan: 100
+};
+
+let meteorlar = [];
+let partikuller = [];
+let yildizlar = []; // Dinamik Arka Plan
+let sarsintiSuresi = 0; // Ekran Sallanmasý
+let mesafe = 3000;
+
+const roketGorseli = new Image(); roketGorseli.src = 'images/roket.png';
+const meteorGorseli = new Image(); meteorGorseli.src = 'images/meteor.png';
+const gezegenGorseli = new Image(); gezegenGorseli.src = 'images/gezegen.png';
+
+let tuslar = {};
+
+function buton_giris() {
+    document.getElementById("buton_id_1").style.display = "none";
+    canvas = document.createElement("canvas");
+    ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.position = "absolute";
+    canvas.style.top = "0"; canvas.style.zIndex = "10";
+    document.body.appendChild(canvas);
+
+    roket.x = canvas.width / 2;
+    roket.y = canvas.height - 150;
+
+    // Yýldýzlarý oluþtur (Dinamik Arka Plan)
+    for(let i=0; i<100; i++) {
+        yildizlar.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            hiz: Math.random() * 2 + 0.5,
+            boyut: Math.random() * 2
+        });
+    }
+
+    window.addEventListener("keydown", (e) => { tuslar[e.key] = true; });
+    window.addEventListener("keyup", (e) => { tuslar[e.key] = false; });
+
+    oyunDevamEdiyor = true;
+    oyun_dongusu();
+}
+
+// 2. Partikül Sistemi Fonksiyonu
+function partikulOlustur(x, y, renk, adet) {
+    for(let i=0; i<adet; i++) {
+        partikuller.push({
+            x: x, y: y,
+            vx: Math.random() * 4 - 2,
+            vy: Math.random() * 4 - 2,
+            omur: 1.0, // Opaklýk
+            renk: renk
+        });
+    }
+}
+
+function guncelle() {
+    // Momentum Hareketi
+    if (tuslar["ArrowUp"] || tuslar["w"]) roket.vy -= roket.ivme;
+    if (tuslar["ArrowDown"] || tuslar["s"]) roket.vy += roket.ivme;
+    if (tuslar["ArrowLeft"] || tuslar["a"]) roket.vx -= roket.ivme;
+    if (tuslar["ArrowRight"] || tuslar["d"]) roket.vx += roket.ivme;
+
+    roket.vx *= roket.surtunme;
+    roket.vy *= roket.surtunme;
+    roket.x += roket.vx;
+    roket.y += roket.vy;
+
+    // Roket egzoz partikülleri
+    if(Math.abs(roket.vx) > 1 || Math.abs(roket.vy) > 1) {
+        partikulOlustur(roket.x + roket.boyut/2, roket.y + roket.boyut, "#FFA500", 1);
+    }
+
+    // Ekran Sýnýrlarý
+    if (roket.x < 0) { roket.x = 0; roket.vx *= -0.5; }
+    if (roket.x + roket.boyut > canvas.width) { roket.x = canvas.width - roket.boyut; roket.vx *= -0.5; }
+
+    // Dinamik Arka Plan (Yýldýzlar) Güncelle
+    yildizlar.forEach(y => {
+        y.y += y.hiz;
+        if(y.y > canvas.height) y.y = 0;
+    });
+
+    // Meteorlar ve Çarpýþma
+    if (Math.random() < 0.03) {
+        meteorlar.push({ x: Math.random()*canvas.width, y: -50, hiz: Math.random()*3+2, boyut: 50 });
+    }
+
+    for (let i = 0; i < meteorlar.length; i++) {
+        let m = meteorlar[i];
+        m.y += m.hiz;
+
+        // Çarpýþma Testi
+        if (roket.x < m.x + m.boyut && roket.x + roket.boyut > m.x &&
+            roket.y < m.y + m.boyut && roket.y + roket.boyut > m.y) {
+            
+            roket.can -= 10; // Can düþür
+            sarsintiSuresi = 10; // Ekraný salla
+            partikulOlustur(m.x, m.y, "#888", 10); // Patlama partikülü
+            meteorlar.splice(i, 1);
+            if(roket.can <= 0) oyunBitti();
+            continue;
+        }
+        if (m.y > canvas.height) meteorlar.splice(i, 1);
+    }
+
+    // Partikülleri Güncelle
+    partikuller.forEach((p, index) => {
+        p.x += p.vx; p.y += p.vy; p.omur -= 0.02;
+        if(p.omur <= 0) partikuller.splice(index, 1);
+    });
+
+    if(sarsintiSuresi > 0) sarsintiSuresi--;
+}
+
+function ciz() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 3. Ekran Sallanmasý (Save/Restore arasýnda)
+    ctx.save();
+    if(sarsintiSuresi > 0) {
+        ctx.translate(Math.random()*10-5, Math.random()*10-5);
+    }
+
+    // Dinamik Arka Plan Çizimi
+    ctx.fillStyle = "white";
+    yildizlar.forEach(y => {
+        ctx.fillRect(y.x, y.y, y.boyut, y.boyut);
+    });
+
+    // Partikülleri Çiz
+    partikuller.forEach(p => {
+        ctx.globalAlpha = p.omur;
+        ctx.fillStyle = p.renk;
+        ctx.fillRect(p.x, p.y, 3, 3);
+    });
+    ctx.globalAlpha = 1.0;
+
+    // Roket ve Meteorlar
+    ctx.drawImage(roketGorseli, roket.x, roket.y, roket.boyut, roket.boyut);
+    meteorlar.forEach(m => ctx.drawImage(meteorGorseli, m.x, m.y, m.boyut, m.boyut));
+
+    ctx.restore(); // Sallanmayý bitir
+
+    // 4. Can Barý Çizimi (Sallanmadan etkilenmez - UI elemaný)
+    ctx.fillStyle = "gray";
+    ctx.fillRect(20, 20, 200, 20);
+    ctx.fillStyle = roket.can > 30 ? "#2ecc71" : "#e74c3c";
+    ctx.fillRect(20, 20, (roket.can / roket.maksCan) * 200, 20);
+    ctx.strokeStyle = "white";
+    ctx.strokeRect(20, 20, 200, 20);
+}
+
+function oyun_dongusu() {
+    if (!oyunDevamEdiyor) return;
+    guncelle();
+    ciz();
+    requestAnimationFrame(oyun_dongusu);
+}
+
+function oyunBitti() {
+    oyunDevamEdiyor = false;
+    alert("Gemi aðýr hasar aldý! Görev baþarýsýz.");
+    location.reload();
+}
+</script>
+</body>
+</html>
