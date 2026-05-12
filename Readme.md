@@ -18,9 +18,9 @@ paginate: true
 
 ## 1. Hedeflenen Oyun Projesi ve Temel Mekanikler
 
-**Oyunun Adı: Space Blaster
-**Oyun Bağlantısı :
-**Oyunun Amacı ve Konsepti: Space Blaster, HTML, CSS ve JavaScript kullanılarak geliştirilmiş, oyuncunun bir uzay gemisini kontrol ederek uzay boşluğunda ilerlediği web tabanlı interaktif bir oyundur. 
+**Oyunun Adı:** Space Blaster
+**Oyun Bağlantısı :**
+**Oyunun Amacı ve Konsepti:** Space Blaster, HTML, CSS ve JavaScript kullanılarak geliştirilmiş, oyuncunun bir uzay gemisini kontrol ederek uzay boşluğunda ilerlediği web tabanlı interaktif bir oyundur. 
 
 **Temel Oyun Mekanikleri ve Teknik Detaylar:**
 
