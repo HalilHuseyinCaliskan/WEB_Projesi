@@ -19,7 +19,9 @@ paginate: true
 ## 1. Hedeflenen Oyun Projesi ve Temel Mekanikler
 
 **Oyunun Adı:** Space Blaster
-**Oyun Bağlantısı :**
+
+**Oyun Bağlantısı:** 
+
 **Oyunun Amacı ve Konsepti:** Space Blaster, HTML, CSS ve JavaScript kullanılarak geliştirilmiş, oyuncunun bir uzay gemisini kontrol ederek uzay boşluğunda ilerlediği web tabanlı interaktif bir oyundur. 
 
 **Temel Oyun Mekanikleri ve Teknik Detaylar:**
@@ -53,9 +55,9 @@ paginate: true
 
 ## 3. Proje Bağlantıları
 
-- **Canlıya Alınmış Proje Bağlantısı :
+- **Canlıya Alınmış Proje Bağlantısı:**
 
-- **GitHub Repo Bağlantısı: https://github.com/HalilHuseyinCaliskan/WEB_Projesi
+- **GitHub Repo Bağlantısı:** https://github.com/HalilHuseyinCaliskan/WEB_Projesi
 
 ---
 
