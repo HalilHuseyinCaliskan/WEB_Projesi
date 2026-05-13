@@ -53,7 +53,16 @@ paginate: true
 
 ---
 
-## 3. Proje Bağlantıları
+## 3. Oyun İçi Ekran Görüntüleri
+<img width="1917" height="923" alt="Ekran görüntüsü 2026-05-13 123329" src="https://github.com/user-attachments/assets/517bf5e8-000a-4301-abee-a82f52829769" />
+<img width="1912" height="896" alt="Ekran görüntüsü 2026-05-13 123355" src="https://github.com/user-attachments/assets/946fac8f-f8ce-4ba4-88a6-ae463cac8763" />
+<img width="1917" height="930" alt="Ekran görüntüsü 2026-05-13 123403" src="https://github.com/user-attachments/assets/40e77d0e-44ec-4f4c-9927-9ab7d5be7d37" />
+<img width="1916" height="923" alt="Ekran görüntüsü 2026-05-13 123416" src="https://github.com/user-attachments/assets/4efaa489-de38-42be-9d94-ce860b418420" />
+<img width="1919" height="920" alt="Ekran görüntüsü 2026-05-13 123442" src="https://github.com/user-attachments/assets/46bf87f4-3179-40bb-9aa3-76e75a5edbc2" />
+
+
+
+## 4. Proje Bağlantıları
 
 - **Canlıya Alınmış Proje Bağlantısı:**
 
