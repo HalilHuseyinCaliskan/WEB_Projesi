@@ -1,1 +1,35 @@
 # WEB_Projesi
+
+Kullanılan Promptlar(RECEP DORUK):
+
+1)
+
+tamam şimdi bu koda şu değişiklikleri eklemeni istiyorum:
+
+-önce roketi uzay_gemisi olan resimle değiştir .
+
+-sonra uzayı uzay9 ile değiştir.
+
+-meteorların düşme hızı oyun başında yavaş olsun ve oyun süresi uzadıkça düşme hızları aynı oranda artsın.
+
+- uzay gemisinin , meteorların ve düşerken topladığımız kedilerin boyutunu biraz daha küçült.
+
+- roketle ateş etme aksiyonları olsun ve bu sayede karşımıza çıkan meteorları yok edebilelim.
+
+- belirli zamanlarda yukarıdan düşen yuvarlak şekilli özel yetenekler olsun. Örneğin bir tanesinde kum saati işareti olsun ve onu alırsak tüm meteorların düşme hızı 7 saniyeliğine yarıya düşsün. Diğer özel güçte mermi simgesi olsun ve onu alırsak mermi hızı 10 saniyeliğine 2 katına çıksın.
+
+- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2)
+
+tamam şimdi aynı kodda roketin hızını ve meteorların düşme hızını yarı yarıya düşürür müsün?
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3)
+
+şimdi aynı oyuna şunları ekler misin:
+
+- bazı meteorların üzerinde sayılar yazsın . üzerine o sayı kadar mermi gelmeden yok olmasın .
+
+- bir özel güç daha ekleyelim bu özel gücün simgesi üç tane mermi olsun ve eğer onu alırsak roket 10 saniye boyunca üçerli mermi atmaya başlasın.
