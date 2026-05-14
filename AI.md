@@ -3755,3 +3755,1015 @@ function oyunBitti() {
 
 }
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+javaScript
+let toplananAltin = 0;
+let altinlar = [];
+
+const altinGorseli = new Image();
+// Resimlerinin klasör yapısına göre yolunu ayarlayabilirsin
+altinGorseli.src = 'images/goldcoin.png';
+JavaScript
+function altinOlustur() {
+    let boyut = 25; // Altının boyutu
+    let x = Math.random() * (canvas.width - boyut);
+    altinlar.push({
+        x: x, 
+        y: -boyut,
+        boyut: boyut,
+        hiz: Math.random() * 1.5 + 1.5 // Düşme hızı
+    });
+}
+
+// Altın Çıkma İhtimali
+    if (Math.random() < 0.015) { 
+        altinOlustur(); 
+    }
+
+    // Altın Hareketi ve Çarpışma
+    for (let i = 0; i < altinlar.length; i++) {
+        let a = altinlar[i];
+        a.y += a.hiz;
+        
+        // Roket ile altın çarpışması
+        if (roket.x < a.x + a.boyut && roket.x + roket.boyut > a.x &&
+            roket.y < a.y + a.boyut && roket.y + roket.boyut > a.y) {
+            
+            toplananAltin++; // Skoru artır
+            // Altın toplandığında sarı bir partikül efekti çıksın
+            partikulOlustur(a.x + a.boyut / 2, a.y + a.boyut / 2, "gold", 15); 
+            
+            altinlar.splice(i, 1); 
+            i--;
+            continue;
+        }
+        
+        // Altın ekrandan çıkarsa sil
+        if (a.y > canvas.height) { 
+            altinlar.splice(i, 1); 
+            i--; 
+        }
+    }
+
+    // Sağ Üste Altın Skoru
+    ctx.fillStyle = "gold";
+    ctx.font = "bold 24px 'Times New Roman'";
+    ctx.textAlign = "right"; // Yazıyı sağa hizala
+    ctx.fillText("Altın: " + toplananAltin, canvas.width - 20, 40);
+    
+    // Geri kalan UI çizimleri için hizalamayı tekrar sola almayı unutma
+    ctx.textAlign = "left";
+
+    let roket = {
+    x: 100,
+    y: 100,
+    vx: 0, 
+    vy: 0, 
+    ivme: 0.1, // Eski değer 0.2 idi, artık daha yavaş
+    surtunme: 0.96, 
+    boyut: 50, 
+    can: 100,
+    maksCan: 100
+};
+
+
+let hizGelistirmeBedeli = 5; // İlk geliştirme 5 altın olsun
+let hizSeviyesi = 1; // Başlangıç seviyesi
+let maksHizSeviyesi = 5; // İstersen bir sınır koyabilirsin
+
+
+function hizGelistir() {
+    // Önce seviye sınırına ulaşıp ulaşmadığını kontrol et
+    if (hizSeviyesi >= maksHizSeviyesi) {
+        alert("Maksimum hız seviyesine ulaştın!");
+        return;
+    }
+
+    // Yeterli altın var mı kontrol et
+    if (toplananAltin >= hizGelistirmeBedeli) {
+        toplananAltin -= hizGelistirmeBedeli; // Altını hesaptan düş
+        roket.ivme += 0.05; // Geminin ivmesini (hızlanmasını) arttır
+        hizSeviyesi++; // Seviyeyi 1 arttır
+        
+        // Bir sonraki geliştirme için fiyatı arttır (örneğin 2 katına çıkar)
+        hizGelistirmeBedeli = hizGelistirmeBedeli * 2; 
+        
+        alert("Gemi hızı başarıyla geliştirildi! Yeni Seviye: " + hizSeviyesi);
+    } else {
+        alert("Yeterli altının yok! Gereken: " + hizGelistirmeBedeli + " Altın");
+    }
+}
+
+
+window.addEventListener("keydown", (e) => { 
+        tuslar[e.key] = true; 
+        if (e.key === " ") e.preventDefault(); 
+        
+        // TEST İÇİN: "h" tuşuna basıldığında hız geliştirmeyi dene
+        if (e.key === "h" || e.key === "H") {
+            hizGelistir();
+        }
+    });
+
+
+
+    let roket = {
+    x: 100,
+    y: 100,
+    vx: 0, 
+    vy: 0, 
+    ivme: 0.08, // Eski değer 0.2 idi, artık başlangıçta çok daha hantal
+    surtunme: 0.96, 
+    boyut: 50, 
+    can: 100,
+    maksCan: 100
+};
+
+
+// Ateş Etme
+    if (tuslar[" "] && sonAtesZamani <= 0 && mermiSayisi > 0) {
+        let hizY = 10 * mermiHizCarpani;
+        
+        mermiSayisi--; // Her ateşlemede mermiyi 1 azalt
+        
+        if (ucluMermiSayac > 0) {
+            // 3 mermi at
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 2, y: roket.y, boyutX: 4, boyutY: 15, hiz: hizY }); // Orta
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 15, y: roket.y + 10, boyutX: 4, boyutY: 15, hiz: hizY }); // Sol
+            mermiler.push({ x: roket.x + roket.boyut / 2 + 11, y: roket.y + 10, boyutX: 4, boyutY: 15, hiz: hizY }); // Sağ
+        } else {
+            // Tek mermi at
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 2, y: roket.y, boyutX: 4, boyutY: 15, hiz: hizY });
+        }
+        sonAtesZamani = atesGecikmesi;
+    }
+
+
+    // Sol Alta Mermi Sayacı
+    ctx.font = "bold 24px 'Times New Roman'";
+    ctx.textAlign = "left";
+    
+    // Mermi 10'dan azsa kırmızı, değilse beyaz yazsın
+    if (mermiSayisi <= 10) {
+        ctx.fillStyle = "#e74c3c"; // Kırmızı
+    } else {
+        ctx.fillStyle = "white";
+    }
+    
+    // canvas.height - 30 diyerek yazıyı sol en alta hizalıyoruz
+    ctx.fillText("Mermi: " + mermiSayisi, 20, canvas.height - 30);
+
+
+    // Ateş Etme
+    if (tuslar[" "] && sonAtesZamani <= 0 && mermiSayisi >= 1) { // En az 1 tam mermi varsa at
+        let hizY = 10 * mermiHizCarpani;
+        
+        mermiSayisi -= 1; // 1 tam mermi harca
+        atesSonrasiBekleme = 45; // Ateşi kestikten sonra dolum başlaması için biraz bekle (yaklaşık 0.75 saniye)
+        
+        if (ucluMermiSayac > 0) {
+            // 3 mermi at
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 2, y: roket.y, boyutX: 4, boyutY: 15, hiz: hizY }); 
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 15, y: roket.y + 10, boyutX: 4, boyutY: 15, hiz: hizY }); 
+            mermiler.push({ x: roket.x + roket.boyut / 2 + 11, y: roket.y + 10, boyutX: 4, boyutY: 15, hiz: hizY }); 
+        } else {
+            // Tek mermi at
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 2, y: roket.y, boyutX: 4, boyutY: 15, hiz: hizY });
+        }
+        sonAtesZamani = atesGecikmesi;
+    }
+    if (sonAtesZamani > 0) sonAtesZamani--;
+
+    // --- LAZER ŞARJ OLMA MANTIĞI ---
+    if (atesSonrasiBekleme > 0) {
+        atesSonrasiBekleme--; // Ateş edildiyse geri sayıma devam et
+    } else if (mermiSayisi < maksMermi) {
+        // Bekleme bittiyse ve enerji ful değilse yavaşça doldur 
+        mermiSayisi += 0.15; // Bu hız saniyede yaklaşık 9 mermi doldurur
+        if (mermiSayisi > maksMermi) {
+            mermiSayisi = maksMermi; // 30'u geçmesini engelle
+        }
+    }
+
+    // Mermileri (Lazerleri) Çiz
+    ctx.fillStyle = "#00ffff"; // Neon mavi lazer rengi
+    ctx.shadowBlur = 10; // Parlama (glow) efekti
+    ctx.shadowColor = "#00ffff";
+    
+    mermiler.forEach(m => {
+        ctx.fillRect(m.x, m.y, m.boyutX, m.boyutY);
+    });
+    
+    ctx.shadowBlur = 0; // Gölgeyi sıfırla ki diğer çizimler de parlamasın
+
+    // Sol Alta Lazer Enerjisi Sayacı
+    ctx.font = "bold 24px 'Times New Roman'";
+    ctx.textAlign = "left";
+    
+    // Ekranda 24.6 gibi küsuratlar görünmesin diye sayıyı aşağı yuvarlıyoruz
+    let gorunenEnerji = Math.floor(mermiSayisi); 
+    
+    if (gorunenEnerji <= 10) {
+        ctx.fillStyle = "#e74c3c"; // Kırmızı uyarı
+    } else {
+        ctx.fillStyle = "#00ffff"; // Lazer rengi
+    }
+    
+    ctx.fillText("Enerji: " + gorunenEnerji + " / " + maksMermi, 20, canvas.height - 30);
+
+
+    // Sol Alta Lazer Enerjisi Sayacı
+    ctx.font = "bold 24px 'Times New Roman'";
+    ctx.textAlign = "left";
+    
+    // Ekranda 24.6 gibi küsuratlar görünmesin diye sayıyı aşağı yuvarlıyoruz
+    let gorunenEnerji = Math.floor(mermiSayisi); 
+    
+    if (gorunenEnerji <= 10) {
+        ctx.fillStyle = "#e74c3c"; // Kırmızı uyarı
+    } else {
+        ctx.fillStyle = "#00ffff"; // Lazer rengi
+    }
+    
+    ctx.fillText("Enerji: " + gorunenEnerji + " / " + maksMermi, 20, canvas.height - 30);
+
+
+    // --- LAZER ŞARJ OLMA MANTIĞI ---
+    if (atesSonrasiBekleme > 0) {
+        atesSonrasiBekleme--; // Ateş edildiyse geri sayıma devam et
+    } else if (mermiSayisi < maksMermi) {
+        // Bekleme bittiyse ve enerji ful değilse yavaşça doldur 
+        mermiSayisi += 0.05; // 0.15'i 0.05 yaptık. (Saniyede yaklaşık 3 enerji doldurur)
+        if (mermiSayisi > maksMermi) {
+            mermiSayisi = maksMermi; // 30'u geçmesini engelle
+        }
+    }
+
+    // Sol Alta Lazer Sayacı
+    ctx.font = "bold 24px 'Times New Roman'";
+    ctx.textAlign = "left";
+    
+    let gorunenEnerji = Math.floor(mermiSayisi); 
+    
+    if (gorunenEnerji <= 10) {
+        ctx.fillStyle = "#e74c3c"; // Kırmızı uyarı
+    } else {
+        ctx.fillStyle = "#00ffff"; // Lazer rengi
+    }
+    
+    // "Enerji" yazısını "Lazer" ile değiştirdik
+    ctx.fillText("Lazer: " + gorunenEnerji + " / " + maksMermi, 20, canvas.height - 30);
+
+
+    // Sol Alta Lazer Enerjisi Sayacı
+    ctx.font = "bold 24px 'Times New Roman'";
+    ctx.textAlign = "left";
+    
+    // Ekranda 24.6 gibi küsuratlar görünmesin diye sayıyı aşağı yuvarlıyoruz
+    let gorunenEnerji = Math.floor(mermiSayisi); 
+    
+    if (gorunenEnerji <= 10) {
+        ctx.fillStyle = "#e74c3c"; // Kırmızı uyarı
+    } else {
+        ctx.fillStyle = "#00ffff"; // Lazer rengi
+    }
+    
+    ctx.fillText("Enerji: " + gorunenEnerji + " / " + maksMermi, 20, canvas.height - 30);
+
+
+    // Sol Alta Lazer Sayacı
+    ctx.font = "bold 24px 'Times New Roman'";
+    ctx.textAlign = "left";
+    
+    let gorunenEnerji = Math.floor(mermiSayisi); 
+    
+    if (gorunenEnerji <= 10) {
+        ctx.fillStyle = "#e74c3c"; // Kırmızı uyarı
+    } else {
+        ctx.fillStyle = "#00ffff"; // Lazer rengi
+    }
+    
+    ctx.fillText("Lazer: " + gorunenEnerji + " / " + maksMermi, 20, canvas.height - 30);
+
+
+    // Ateş Etme
+    if (tuslar[" "] && sonAtesZamani <= 0 && mermiSayisi >= 1) { 
+        let hizY = 10 * mermiHizCarpani;
+        
+        mermiSayisi -= 1; 
+        atesSonrasiBekleme = 45; 
+        
+        // --- SESİ BURADA ÇALDIRIYORUZ ---
+        lazerSesi.currentTime = 0; // Peş peşe basıldığında sesin baştan başlaması için
+        lazerSesi.play(); 
+        
+        if (ucluMermiSayac > 0) {
+            // 3 mermi at
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 2, y: roket.y, boyutX: 4, boyutY: 15, hiz: hizY }); 
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 15, y: roket.y + 10, boyutX: 4, boyutY: 15, hiz: hizY }); 
+            mermiler.push({ x: roket.x + roket.boyut / 2 + 11, y: roket.y + 10, boyutX: 4, boyutY: 15, hiz: hizY }); 
+        } else {
+            // Tek mermi at
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 2, y: roket.y, boyutX: 4, boyutY: 15, hiz: hizY });
+        }
+        sonAtesZamani = atesGecikmesi;
+    }
+
+    // Ateş Etme
+    if (tuslar[" "] && sonAtesZamani <= 0 && mermiSayisi >= 1) { 
+        let hizY = 10 * mermiHizCarpani;
+        
+        mermiSayisi -= 1; 
+        atesSonrasiBekleme = 45; 
+        
+        // --- LAZER SESİNİ ÇALDIR ---
+        lazerSesi.currentTime = 0; // Peş peşe basıldığında sesin baştan başlaması için süreyi sıfırla
+        lazerSesi.play(); 
+        
+        if (ucluMermiSayac > 0) {
+            // 3 mermi at
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 2, y: roket.y, boyutX: 4, boyutY: 15, hiz: hizY }); 
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 15, y: roket.y + 10, boyutX: 4, boyutY: 15, hiz: hizY }); 
+            mermiler.push({ x: roket.x + roket.boyut / 2 + 11, y: roket.y + 10, boyutX: 4, boyutY: 15, hiz: hizY }); 
+        } else {
+            // Tek mermi at
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 2, y: roket.y, boyutX: 4, boyutY: 15, hiz: hizY });
+        }
+        sonAtesZamani = atesGecikmesi;
+    }
+
+    <div id="market-ekrani">
+        <h1 style="color: #00ffff; text-shadow: 0 0 10px #00ffff;">BÖLÜM TAMAMLANDI!</h1>
+        <h2 id="market-altin-gosterge" style="color: gold;">Altın: 0</h2>
+        
+        <div class="market-secenekler">
+            <button class="market-buton" onclick="gemiGelistirmeAc()">Gemi Geliştirmesi Yap</button>
+            <button class="market-buton" onclick="saticiAc()">Satıcıya Git</button>
+        </div>
+        
+        <button class="yeni-bolum-buton" onclick="yeniBolumeGec()">Yeni Bölüme Geç ➔</button>
+    </div>
+
+
+    /* MARKET UI TASARIMI */
+        #market-ekrani {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 70%;
+            background-color: rgba(10, 15, 30, 0.95);
+            border: 3px solid #00ffff;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            z-index: 20;
+            display: none; /* Başlangıçta gizli durur */
+            font-family: 'Times New Roman', Times, serif;
+            text-align: center;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        .market-secenekler {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .market-buton {
+            padding: 20px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            background-color: #1a253c;
+            color: white;
+            border: 2px solid #f1c40f;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .market-buton:hover {
+            background-color: #f1c40f;
+            color: black;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #f1c40f;
+        }
+
+        .yeni-bolum-buton {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .yeni-bolum-buton:hover {
+            background-color: #2ecc71;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #2ecc71;
+        }
+
+        function seviyeAtla() {
+    marketAcik = true; // Oyunu duraklat
+    
+    // Altın sayısını market ekranına yazdır
+    document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+    
+    // Market ekranını görünür yap
+    document.getElementById("market-ekrani").style.display = "block";
+
+    // Arka planda sahneyi temizle ve yeni bölüme hazırla
+    meteorlar = []; 
+    kediler = []; 
+    mermiler = [];
+    gucSimgeleri = [];
+    altinlar = []; // 4. bölümde bahsettiğimiz eski altınları silme işlemi
+    
+    seviye++;
+    toplananKediler = 0;
+    hedef.gorunurMu = false;
+    hedef.y = -450;
+    
+    // Roketi güvenli bir şekilde başlangıç noktasına al
+    roket.x = canvas.width / 2 - roket.boyut / 2;
+    roket.y = canvas.height / 2 - roket.boyut / 2;
+    roket.vx = 0;
+    roket.vy = 0;
+
+    meteorHizi += 0.25; 
+    roket.can = Math.min(roket.can + 30, 100); 
+}
+
+
+<div id="market-ekrani">
+        <h1 style="color: #00ffff; text-shadow: 0 0 10px #00ffff;">BÖLÜM TAMAMLANDI!</h1>
+        <h2 id="market-altin-gosterge" style="color: gold;">Altın: 0</h2>
+        
+        <div id="market-ana-menu" class="market-secenekler">
+            <button class="market-buton" onclick="gemiGelistirmeAc()">Gemi Geliştirmesi Yap</button>
+            <button class="market-buton" onclick="saticiAc()">Satıcıya Git</button>
+        </div>
+
+        <div id="gelistirme-menu" style="display: none; margin-top: 20px;">
+            <h2 style="color: #f1c40f;">GEMİ GELİŞTİRMELERİ</h2>
+            
+            <div class="gelistirme-satir">
+                <span>Lazer Kapasitesi: <b id="lazer-deger-ui">30</b></span>
+                <button class="upgrade-btn" onclick="lazerKapasiteArttir()">+10 Kapasite (10 Altın)</button>
+            </div>
+
+            <div class="gelistirme-satir">
+                <span>Gemi Hızı: <b id="hiz-deger-ui">0.12</b></span>
+                <button class="upgrade-btn" onclick="gemiHiziArttir()">+0.01 Hız (10 Altın)</button>
+            </div>
+
+            <button class="market-buton" style="margin-top: 20px; background-color: #c0392b;" onclick="gemiGelistirmeKapat()">Geri Dön</button>
+        </div>
+        
+        <button class="yeni-bolum-buton" onclick="yeniBolumeGec()">Yeni Bölüme Geç ➔</button>
+    </div>
+
+
+    .gelistirme-satir {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 10px auto;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            width: 80%;
+        }
+        .upgrade-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Times New Roman', Times, serif;
+            transition: 0.3s;
+        }
+        .upgrade-btn:hover {
+            background-color: #2ecc71;
+            transform: scale(1.05);
+        }
+
+        // --- MARKET FONKSİYONLARI ---
+
+function gemiGelistirmeAc() {
+    // Ana menü butonlarını gizle, geliştirme menüsünü göster
+    document.getElementById("market-ana-menu").style.display = "none";
+    document.getElementById("gelistirme-menu").style.display = "block";
+    
+    // UI Değerlerini güncelle
+    document.getElementById("lazer-deger-ui").innerText = maksMermi;
+    document.getElementById("hiz-deger-ui").innerText = roket.ivme.toFixed(2);
+}
+
+function gemiGelistirmeKapat() {
+    // Geliştirme menüsünü gizle, ana menüyü göster
+    document.getElementById("gelistirme-menu").style.display = "none";
+    document.getElementById("market-ana-menu").style.display = "flex";
+}
+
+function lazerKapasiteArttir() {
+    if (toplananAltin >= 10) {
+        toplananAltin -= 10;
+        maksMermi += 10;
+        mermiSayisi = maksMermi; // Geliştirme yapınca lazeri de fuller
+        
+        // UI Güncelle
+        document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+        document.getElementById("lazer-deger-ui").innerText = maksMermi;
+    } else {
+        alert("Yeterli altının yok!");
+    }
+}
+
+function gemiHiziArttir() {
+    if (toplananAltin >= 10) {
+        toplananAltin -= 10;
+        roket.ivme += 0.01;
+        
+        // UI Güncelle
+        document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+        document.getElementById("hiz-deger-ui").innerText = roket.ivme.toFixed(2);
+    } else {
+        alert("Yeterli altının yok!");
+    }
+}
+
+function yeniBolumeGec() {
+    // Menüleri resetle (bir sonraki stage sonu ana menüden başlasın)
+    gemiGelistirmeKapat();
+    document.getElementById("market-ekrani").style.display = "none";
+    marketAcik = false; 
+    partikulOlustur(canvas.width / 2, canvas.height / 2, "white", 50);
+}
+
+function gemiGelistirmeAc() {
+    // Ana menü butonlarını gizle, geliştirme menüsünü göster
+    document.getElementById("market-ana-menu").style.display = "none";
+    document.getElementById("gelistirme-menu").style.display = "block";
+    
+    // UI Değerlerini güncelle
+    document.getElementById("lazer-deger-ui").innerText = maksMermi;
+    // Hız yerine seviyeyi yazdırıyoruz
+    document.getElementById("motor-seviye-ui").innerText = motorSeviyesi + ". Seviye";
+}
+
+function gemiHiziArttir() {
+    if (toplananAltin >= 10) {
+        toplananAltin -= 10;
+        
+        // Arka planda gemi hızlanmaya devam eder
+        roket.ivme += 0.01;
+        
+        // Oyuncuya gösterilen seviyeyi artır
+        motorSeviyesi++;
+        
+        // UI Güncelle
+        document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+        document.getElementById("motor-seviye-ui").innerText = motorSeviyesi + ". Seviye";
+        
+        // Küçük bir bildirim (Opsiyonel)
+        console.log("Motorlar güçlendirildi! Yeni İvme: " + roket.ivme.toFixed(2));
+    } else {
+        alert("Yeterli altının yok!");
+    }
+}
+
+<div id="market-ekrani">
+        <h1 style="color: #00ffff; text-shadow: 0 0 10px #00ffff;">BÖLÜM TAMAMLANDI!</h1>
+        <h2 id="market-altin-gosterge" style="color: gold;">Altın: 0</h2>
+        
+        <div id="market-ana-menu" class="market-secenekler">
+            <button class="market-buton" onclick="gemiGelistirmeAc()">Gemi Geliştirmesi Yap</button>
+            <button class="market-buton" onclick="saticiAc()">Satıcıya Git</button>
+        </div>
+
+        <div id="gelistirme-menu" style="display: none; margin-top: 20px;">
+            <h2 style="color: #f1c40f;">GEMİ GELİŞTİRMELERİ</h2>
+            
+            <div class="gelistirme-satir">
+                <span>Lazer Kapasitesi: <b id="lazer-deger-ui">30</b></span>
+                <button class="upgrade-btn" onclick="lazerKapasiteArttir()">+10 Kapasite (10 Altın)</button>
+            </div>
+
+            <div class="gelistirme-satir">
+                <span>İtici Motor Gücü: <b id="motor-seviye-ui">1. Seviye</b></span>
+                <button class="upgrade-btn" onclick="gemiHiziArttir()">İtici Motorları Güçlendir (10 Altın)</button>
+            </div>
+
+            <button class="market-buton" style="margin-top: 20px; background-color: #c0392b;" onclick="gemiGelistirmeKapat()">Geri Dön</button>
+        </div>
+        
+        <button class="yeni-bolum-buton" onclick="yeniBolumeGec()">Yeni Bölüme Geç ➔</button>
+    </div>
+
+
+    // --- MARKET FONKSİYONLARI ---
+
+function gemiGelistirmeAc() {
+    // Ana menüyü gizle, geliştirmeleri aç
+    document.getElementById("market-ana-menu").style.display = "none";
+    document.getElementById("gelistirme-menu").style.display = "block";
+    
+    // UI Değerlerini güncelle (Hem Lazer hem Motor burada güncelleniyor)
+    document.getElementById("lazer-deger-ui").innerText = maksMermi;
+    document.getElementById("motor-seviye-ui").innerText = motorSeviyesi + ". Seviye";
+}
+
+function gemiGelistirmeKapat() {
+    // Geliştirme menüsünü gizle, ana menüye dön
+    document.getElementById("gelistirme-menu").style.display = "none";
+    document.getElementById("market-ana-menu").style.display = "flex";
+}
+
+function lazerKapasiteArttir() {
+    if (toplananAltin >= 10) {
+        toplananAltin -= 10;
+        maksMermi += 10;
+        mermiSayisi = maksMermi; // Lazer kapasitesi artınca enerjiyi de fuller
+        
+        // UI Güncelle
+        document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+        document.getElementById("lazer-deger-ui").innerText = maksMermi;
+    } else {
+        alert("Yeterli altının yok!");
+    }
+}
+
+function gemiHiziArttir() {
+    if (toplananAltin >= 10) {
+        toplananAltin -= 10;
+        roket.ivme += 0.01; // Arka planda gemi ivmesini artır
+        motorSeviyesi++;    // Oyuncunun gördüğü seviyeyi artır
+        
+        // UI Güncelle
+        document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+        document.getElementById("motor-seviye-ui").innerText = motorSeviyesi + ". Seviye";
+    } else {
+        alert("Yeterli altının yok!");
+    }
+}
+
+function saticiAc() {
+    alert("Satıcı eşyaları henüz eklenmedi!");
+}
+
+function yeniBolumeGec() {
+    // Menüleri resetle (bir sonraki stage sonu ana menüden başlasın)
+    gemiGelistirmeKapat();
+    document.getElementById("market-ekrani").style.display = "none";
+    marketAcik = false; 
+    partikulOlustur(canvas.width / 2, canvas.height / 2, "white", 50);
+}
+
+
+<div id="satici-menu" style="display: none; margin-top: 20px;">
+            <h2 style="color: #e74c3c;">UZAY TÜCCARI</h2>
+            
+            <div class="esya-satir">
+                <div class="esya-resim-bosluk"></div> 
+                
+                <div class="esya-bilgi">
+                    <h3 style="margin: 0; color: #3498db;">Gemi Mühendisi</h3>
+                    <p style="margin: 5px 0; font-size: 14px; color: #bdc3c7;">"Geminin anlık tamire mi ihtiyacı var? Tam senlik bir elemanım var."</p>
+                </div>
+                
+                <button class="upgrade-btn" id="muhendis-btn" onclick="muhendisAl()">Satın Al (20 Altın)</button>
+            </div>
+
+            <button class="market-buton" style="margin-top: 20px; background-color: #c0392b;" onclick="saticiKapat()">Geri Dön</button>
+        </div>
+
+        .esya-satir {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 10px auto;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            color: white;
+            width: 90%;
+            gap: 15px;
+        }
+        
+        .esya-resim-bosluk {
+            width: 65px;
+            height: 65px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 2px dashed #7f8c8d;
+            border-radius: 8px;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+        
+        .esya-resim-bosluk::after {
+            content: "RESİM"; /* Sen buraya resim koyana kadar içinde RESİM yazacak */
+        }
+        
+        .esya-bilgi {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        function saticiAc() {
+    document.getElementById("market-ana-menu").style.display = "none";
+    document.getElementById("satici-menu").style.display = "block";
+}
+
+function saticiKapat() {
+    document.getElementById("satici-menu").style.display = "none";
+    document.getElementById("market-ana-menu").style.display = "flex";
+}
+
+function muhendisAl() {
+    if (muhendisAlindi) {
+        alert("Bu elemanı zaten işe aldın, gemide çalışıyor!");
+        return;
+    }
+    
+    if (toplananAltin >= 20) {
+        toplananAltin -= 20;
+        muhendisAlindi = true;
+        
+        // UI Güncelle: Altını düş ve butonu "Satın Alındı" yapıp devre dışı bırak
+        document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+        document.getElementById("muhendis-btn").innerText = "İşe Alındı!";
+        document.getElementById("muhendis-btn").style.backgroundColor = "#7f8c8d";
+        document.getElementById("muhendis-btn").style.cursor = "not-allowed";
+        
+    } else {
+        alert("Yeterli altının yok!");
+    }
+}
+
+// --- GEMİ MÜHENDİSİ PASİF CAN YENİLEME ---
+    if (muhendisAlindi && roket.can < roket.maksCan) {
+        // 60 FPS çalıştığı için saniyede yaklaşık 1.2 can doldurur. İstersen artırabilirsin.
+        roket.can += 0.02; 
+        
+        // Can 100'ü geçmesin diye kontrol
+        if (roket.can > roket.maksCan) {
+            roket.can = roket.maksCan;
+        }
+    }
+    function yeniBolumeGec() {
+    // Menüleri resetle (bir sonraki stage sonu ana menüden başlasın)
+    gemiGelistirmeKapat();
+    saticiKapat(); // <-- İŞTE EKLENMESİ GEREKEN KISIM BURASIYDI
+    
+    document.getElementById("market-ekrani").style.display = "none";
+    marketAcik = false; 
+    partikulOlustur(canvas.width / 2, canvas.height / 2, "white", 50);
+}
+
+<div class="esya-satir">
+                <div class="esya-resim-bosluk"></div> 
+                
+                <div class="esya-bilgi">
+                    <h3 style="margin: 0; color: #f39c12;">Uzay Tahsildarı</h3>
+                    <p style="margin: 5px 0; font-size: 14px; color: #bdc3c7;">"Sistemin neresinde olursan ol, vergileri ve altınları senin için tahsil eden o acımasız asistan."</p>
+                </div>
+                
+                <button class="upgrade-btn" id="tahsildar-btn" onclick="tahsildarAl()">Satın Al (30 Altın)</button>
+            </div>
+
+            function tahsildarAl() {
+    if (tahsildarAlindi) {
+        alert("Bu tahsildar zaten gemide çalışıyor!");
+        return;
+    }
+    
+    if (toplananAltin >= 30) {
+        toplananAltin -= 30;
+        tahsildarAlindi = true;
+        
+        // UI Güncelle
+        document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+        document.getElementById("tahsildar-btn").innerText = "İşe Alındı!";
+        document.getElementById("tahsildar-btn").style.backgroundColor = "#7f8c8d";
+        document.getElementById("tahsildar-btn").style.cursor = "not-allowed";
+        
+    } else {
+        alert("Yeterli altının yok!");
+    }
+}
+
+// Altın Hareketi, Mıknatıs ve Çarpışma
+    for (let i = 0; i < altinlar.length; i++) {
+        let a = altinlar[i];
+        
+        // --- UZAY TAHSİLDARI (MIKNATIS) MANTIĞI ---
+        if (tahsildarAlindi) {
+            // Roketin merkezi ile altının merkezi arasındaki mesafeyi ölç
+            let roketMerkezX = roket.x + roket.boyut / 2;
+            let roketMerkezY = roket.y + roket.boyut / 2;
+            let altinMerkezX = a.x + a.boyut / 2;
+            let altinMerkezY = a.y + a.boyut / 2;
+            
+            let dx = roketMerkezX - altinMerkezX;
+            let dy = roketMerkezY - altinMerkezY;
+            let mesafe = Math.sqrt(dx * dx + dy * dy);
+            
+            if (mesafe < 250) { // Altın 250 piksel (menzil) yakındaysa
+                // Altını rokete doğru çek
+                a.x += dx * 0.04; // 0.04 çekim hızı
+                a.y += dy * 0.04;
+            } else {
+                a.y += a.hiz; // Menzilde değilse normal düşmeye devam et
+            }
+        } else {
+            a.y += a.hiz; // Tahsildar alınmadıysa normal düşmeye devam et
+        }
+        
+        // Roket ile altın çarpışması (Toplama)
+        if (roket.x < a.x + a.boyut && roket.x + roket.boyut > a.x &&
+            roket.y < a.y + a.boyut && roket.y + roket.boyut > a.y) {
+            
+            toplananAltin++; 
+            partikulOlustur(a.x + a.boyut / 2, a.y + a.boyut / 2, "gold", 15); 
+            
+            altinlar.splice(i, 1); 
+            i--;
+            continue;
+        }
+        
+        if (a.y > canvas.height) { 
+            altinlar.splice(i, 1); 
+            i--; 
+        }
+    }
+
+    function seviyeAtla() {
+    marketAcik = true; // Oyunu duraklat
+
+    // Marketi görünür yap (Yeni Flexbox sistemiyle)
+    document.getElementById("market-ekrani").style.display = "flex";
+    
+    // UI Değerlerini Güncelle (Altın, Lazer ve Motor Seviyesi)
+    document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+    document.getElementById("lazer-deger-ui").innerText = maksMermi;
+    document.getElementById("motor-seviye-ui").innerText = motorSeviyesi + ". Seviye";
+
+    // Arka planda sahneyi temizle ve yeni bölüme hazırla
+    meteorlar = []; 
+    kediler = []; 
+    mermiler = [];
+    gucSimgeleri = [];
+    altinlar = []; 
+    
+    seviye++;
+    toplananKediler = 0;
+    hedef.gorunurMu = false;
+    hedef.y = -450;
+    
+    // Roketi güvenli bir şekilde başlangıç noktasına al
+    roket.x = canvas.width / 2 - roket.boyut / 2;
+    roket.y = canvas.height / 2 - roket.boyut / 2;
+    roket.vx = 0;
+    roket.vy = 0;
+
+    meteorHizi += 0.25; 
+    roket.can = Math.min(roket.can + 30, 100); // Bölüm sonu küçük bir can desteği
+}
+
+
+
+<div id="satici-menu" style="display: none;">
+                <h2 style="color: #e74c3c;">UZAY TÜCCARI</h2>
+                
+                <div class="esya-satir">
+                    <div class="esya-resim-bosluk">
+                        <img src="images/muhendis.png" alt="Mühendis">
+                    </div> 
+                    <div class="esya-bilgi">
+                        <h3 style="margin: 0; color: #3498db;">Gemi Mühendisi</h3>
+                        <p style="margin: 5px 0; font-size: 14px; color: #bdc3c7;">"Geminin anlık tamire mi ihtiyacı var? Tam senlik bir elemanım var."</p>
+                    </div>
+                    <button class="upgrade-btn" id="muhendis-btn" onclick="muhendisAl()">Satın Al (20 Altın)</button>
+                </div>
+
+                <div class="esya-satir">
+                    <div class="esya-resim-bosluk">
+                        <img src="images/tahsildar.png" alt="Tahsildar">
+                    </div> 
+                    <div class="esya-bilgi">
+                        <h3 style="margin: 0; color: #f39c12;">Uzay Tahsildarı</h3>
+                        <p style="margin: 5px 0; font-size: 14px; color: #bdc3c7;">"Sistemin neresinde olursan ol, vergileri senin için tahsil eden o acımasız asistan."</p>
+                    </div>
+                    <button class="upgrade-btn" id="tahsildar-btn" onclick="tahsildarAl()">Satın Al (30 Altın)</button>
+                </div>
+                
+                <button class="market-buton" style="margin: 20px 0; background-color: #c0392b;" onclick="saticiKapat()">Geri Dön</button>
+            </div>
+
+            // Arka Plan Müziği
+const arkaPlanMuzigi = new Audio('sounds/arkaplan.mp3');
+arkaPlanMuzigi.volume = 0.15; // Müzik çok baskın olmasın diye %15 ses seviyesi
+arkaPlanMuzigi.loop = true;   // Müzik bittiğinde otomatik başa döner
+
+
+// Kedi Toplama Çarpışma
+    for (let i = 0; i < kediler.length; i++) {
+        let k = kediler[i];
+        k.y += k.hiz;
+
+        // Çarpışma Kontrolü
+        if (roket.x < k.x + k.boyut && roket.x + roket.boyut > k.x &&
+            roket.y < k.y + k.boyut && roket.y + roket.boyut > k.y) {
+            
+            // --- SES EFEKTİ BURADA ---
+            kediSesi.currentTime = 0; // Sesin üst üste binmesini sağlar
+            kediSesi.play();
+
+            toplananKediler++;
+            partikulOlustur(k.x + k.boyut / 2, k.y + k.boyut / 2, "#f39c12", 10);
+            
+            kediler.splice(i, 1); 
+            i--;
+            continue;
+        }
+
+        // Ekrandan çıkan kedileri temizle
+        if (k.y > canvas.height) { 
+            kediler.splice(i, 1); 
+            i--; 
+        }
+    }
+
+
+    // Kedi Toplama Çarpışma
+    for (let i = 0; i < kediler.length; i++) {
+        let k = kediler[i];
+        k.y += k.hiz;
+        if (roket.x < k.x + k.boyut && roket.x + roket.boyut > k.x &&
+            roket.y < k.y + k.boyut && roket.y + roket.boyut > k.y) {
+            
+            // --- KEDİ SESİ BURADA ---
+            kediSesi.currentTime = 0;
+            kediSesi.play();
+
+            toplananKediler++;
+            partikulOlustur(k.x + k.boyut / 2, k.y + k.boyut / 2, "#f39c12", 10);
+            kediler.splice(i, 1); 
+            i--;
+            continue;
+        }
+        if (k.y > canvas.height) { kediler.splice(i, 1); i--; }
+    }
+
+
+    // Kedi Toplama Çarpışma
+    for (let i = 0; i < kediler.length; i++) {
+        let k = kediler[i];
+        k.y += k.hiz;
+
+        if (roket.x < k.x + k.boyut && roket.x + roket.boyut > k.x &&
+            roket.y < k.y + k.boyut && roket.y + roket.boyut > k.y) {
+            
+            // SESİ ÇALDIR (Hata almamak için kontrol ekledik)
+            if(kediSesi) {
+                kediSesi.currentTime = 0;
+                kediSesi.play().catch(e => console.log("Ses hatası:", e));
+            }
+
+            toplananKediler++;
+            partikulOlustur(k.x + k.boyut / 2, k.y + k.boyut / 2, "#f39c12", 10);
+            
+            kediler.splice(i, 1); 
+            i--;
+            continue; // Çarpışma olduysa alt satırı (ekran sınırını) kontrol etme, bir sonrakine geç
+        }
+        
+        if (k.y > canvas.height) { 
+            kediler.splice(i, 1); 
+            i--; 
+        }
+    }
+
+
+
+
