@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Bu proje WEB Tabanlı Programlama Dersi kapsamında yapılmıştır.">
+    <meta name="author" content="Alperen Namlı, Halil Hüseyin Çalışkan, Muhammed Emin Uysal, Nurullah Harun Köse, Recep Doruk">
+    <meta name="keys" content="HTML,CSS,Javascript,Oyun">
+
+    <style>
+
+        
+/* MARKET ANA PENCERE */
+    #market-ekrani {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 80%;
+            background-color: rgba(10, 15, 30, 0.98);
+            border: 3px solid #00ffff;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            z-index: 20;
+            
+            display: none; /* ÖNEMLİ: Başlangıçta gizli olması için burası none olmalı */
+            
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        .market-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+            flex-shrink: 0;
+        }
+
+        /* İÇERİK ALANI (Kaydırılabilir Pencere) */
+        .market-scroll-pencere {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 80px; /* BU SATIRI EKLE: En alta 80px boşluk bırakır */
+            scrollbar-width: thin;
+            scrollbar-color: #00ffff #1a253c;
+        }
+
+        /* Scrollbar tasarımı (Chrome/Safari için) */
+        .market-scroll-pencere::-webkit-scrollbar {
+            width: 8px;
+        }
+        .market-scroll-pencere::-webkit-scrollbar-thumb {
+            background-color: #00ffff;
+            border-radius: 10px;
+        }
+
+        .market-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+            background: rgba(10, 15, 30, 1);
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* Butonun yerini flex yapıya göre düzelttik */
+        .yeni-bolum-buton {
+            position: relative; /* absolute'tan çıkardık */
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .market-secenekler {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .market-buton {
+            padding: 20px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            background-color: #1a253c;
+            color: white;
+            border: 2px solid #f1c40f;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .market-buton:hover {
+            background-color: #f1c40f;
+            color: black;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #f1c40f;
+        }
+
+        .yeni-bolum-buton {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .yeni-bolum-buton:hover {
+            background-color: #2ecc71;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #2ecc71;
+        }
+
+        .gelistirme-satir {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 10px auto;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            width: 80%;
+        }
+        /* Geri dön butonuna özel stil */
+        .geri-don-btn {
+            background-color: #c0392b !important; /* Kırmızı renk */
+            color: white !important;
+            padding: 10px 20px !important; /* Daha küçük padding */
+            font-size: 16px !important;
+            width: auto !important; /* Tüm satırı kaplamasın */
+            margin: 20px auto !important;
+            display: block; /* Ortalamak için */
+        }
+
+        .geri-don-btn:hover {
+            background-color: #e74c3c !important;
+            transform: scale(1.05);
+        }
+        .upgrade-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Times New Roman', Times, serif;
+            transition: 0.3s;
+        }
+        .upgrade-btn:hover {
+            background-color: #2ecc71;
+            transform: scale(1.05);
+        }
+
+        .esya-satir {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 10px auto;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            color: white;
+            width: 90%;
+            gap: 15px;
+        }
+        
+        .esya-resim-bosluk {
+            width: 70px;
+            height: 70px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 2px solid #00ffff; /* Kesikli çizgiyi neon düz çizgi yaptık */
+            border-radius: 10px;
+            flex-shrink: 0;
+            overflow: hidden; /* Resim köşelerden taşmasın diye */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* İçindeki resmin kutuya tam oturması için bu şart */
+        .esya-resim-bosluk img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+        }
+        
+        .esya-bilgi {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        body{
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden; /* Sayfanın kaymasını engeller */
+        }
+        .resimler{
+            display: none;
+        }
+
+        .arka_plan_animasyon{
+            width: 100%;
+            height: 100vh;
+            background-size: cover;
+            background-image: url(images/uzay9.png); /* Sabit uzay9 arka planı */
+            position: absolute;
+            top:0;
+            left:0;
+        }
+
+        .buton1{
+            position: absolute;
+            width: 10%;
+            height: 10vh;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            border-radius: 15px;
+            background-color: #7CAAE6;
+            font-weight: bold;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: large;
+            transition: all 0.4s;
+        }
+
+        .buton1:hover{
+            cursor: pointer;
+            background-color: #3B8EFF;
+            transform: translate(-50%,-50%) scale(1.2);
+        }
+    </style>
+    
+    <script>
+// 1. Değişkenleri Tanımlayalım
+
+// Ses Efektleri
+
+// Arka Plan Müziği
+const arkaPlanMuzigi = new Audio('sounds/arkaplan.mp3');
+arkaPlanMuzigi.volume = 0.15; // Müzik çok baskın olmasın diye %15 ses seviyesi
+arkaPlanMuzigi.loop = true;   // Müzik bittiğinde otomatik başa döner
+
+
+const lazerSesi = new Audio('sounds/lazerses.mp3');
+lazerSesi.volume = 0.3; // Ses seviyesini buradan ayarlayabilirsin
+
+const kediSesi = new Audio('sounds/meowsound.mp3'); 
+kediSesi.volume = 0.4;
+
+const meteorSesi = new Audio('sounds/meteor.mp3');
+meteorSesi.volume = 0.4; // Darbe sesi net olsun
+
+const uyariSesi = new Audio('sounds/uyari.mp3');
+uyariSesi.volume = 0.25; 
+uyariSesi.loop = true; // Can dolana kadar dönsün
+
+let uyariAktif = false; // Alarmın durumunu takip etmek için bayrak (flag)
+
+let canvas, ctx;
+let oyunDevamEdiyor = false;
+let oyunSuresiFrames = 0; // Süreye bağlı hız artışı için sayaç
+
+let toplananAltin = 0;
+let altinlar = [];
+
+let mermiSayisi = 30; 
+let maksMermi = 30; // Maksimum kapasitemiz
+let atesSonrasiBekleme = 0; // Doluma geçmeden önceki ufak bekleme süresi
+
+const altinGorseli = new Image();
+altinGorseli.src = 'images/goldcoin.png';
+
+// Oyuncu (roket) Objesi 
+let roket = {
+    x: 100,
+    y: 100,
+    vx: 0, 
+    vy: 0, 
+    ivme: 0.12,
+    surtunme: 0.96, 
+    boyut: 50, 
+    can: 100,
+    maksCan: 100
+};
+
+let marketAcik = false;
+let muhendisAlindi = false;
+let motorSeviyesi = 1; // Başlangıç motor seviyesi
+let tahsildarAlindi = false;
+
+// Mermi Değişkenleri
+let mermiler = [];
+let sonAtesZamani = 0;
+let atesGecikmesi = 15; // Mermiler arası bekleme süresi (Frame)
+
+// Özel Güç Değişkenleri
+let gucSimgeleri = [];
+let meteorHizCarpani = 1;
+let meteorYavaslaticiSayac = 0;
+let mermiHizCarpani = 1;
+let mermiBuffSayac = 0;
+let ucluMermiSayac = 0; // 3x Mermi için sayaç
+
+let toplananKediler = 0;
+let hedefKediSayisi = 30;
+let seviye = 1;
+
+let kediler = [];
+const kediGorseli = new Image();
+kediGorseli.src = 'images/kedi.png';
+
+const roketGorseli = new Image();
+roketGorseli.src = 'images/uzay_gemisi.png'; 
+roket.resim = roketGorseli;
+
+// Hedef (Gezegen) Objesi
+const gezegenGorseli = new Image();
+gezegenGorseli.src = 'images/gezegen.png'; 
+
+let hedef = {
+    y: -450, 
+    boyut: 400,
+    mesafe: 3000, 
+    gorunurMu: false
+};
+
+let tuslar = {};
+let meteorlar = [];
+let meteorHizi = 0.25; 
+let partikuller = []; 
+let yildizlar = [];    
+let sarsintiSuresi = 0; 
+const meteorGorseli = new Image();
+meteorGorseli.src = 'images/meteor.png'; 
+
+// 2. Butona tıklandığında çalışacak fonksiyon
+function buton_giris() {
+    var buton = document.getElementById("buton_id_1");
+    buton.style.display = "none";
+
+    canvas = document.createElement("canvas");
+    ctx = canvas.getContext("2d");
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.position = "absolute";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.zIndex = "10"; 
+    
+    document.body.appendChild(canvas);
+
+    for(let i=0; i<100; i++) {
+        yildizlar.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            hiz: Math.random() * 3 + 1,
+            boyut: Math.random() * 2
+        });
+    }
+
+    window.addEventListener('resize', function() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+    
+    roket.x = canvas.width / 2 - roket.boyut / 2;
+    roket.y = canvas.height / 2 - roket.boyut / 2;
+
+    window.addEventListener("keydown", (e) => { 
+        tuslar[e.key] = true; 
+        if (e.key === " ") e.preventDefault(); 
+    });
+    window.addEventListener("keyup", (e) => { tuslar[e.key] = false; });
+
+    // --- MÜZİĞİ BURADA BAŞLATIYORUZ ---
+    arkaPlanMuzigi.play().catch(e => console.log("Müzik çalınamadı:", e));
+
+    oyunDevamEdiyor = true;
+    oyun_dongusu();
+}
+
+function partikulOlustur(x, y, renk, adet) {
+    for (let i = 0; i < adet; i++) {
+        partikuller.push({
+            x: x,
+            y: y,
+            vx: Math.random() * 6 - 3,
+            vy: Math.random() * 6 - 3,
+            omur: 1.0,
+            renk: renk
+        });
+    }
+}
+        
+function kediOlustur() {
+    let boyut = 30; 
+    let x = Math.random() * (canvas.width - boyut);
+    kediler.push({
+        x: x, y: -boyut,
+        boyut: boyut,
+        hiz: Math.random() * 1 + 2
+    });
+}
+function altinOlustur() {
+    let boyut = 25; // Altının boyutu
+    let x = Math.random() * (canvas.width - boyut);
+    altinlar.push({
+        x: x, 
+        y: -boyut,
+        boyut: boyut,
+        hiz: Math.random() * 1.5 + 1.5 // Düşme hızı
+    });
+}
+
+function meteorOlustur() {
+    let boyut = Math.random() * (50 - 25) + 25; 
+    let x = Math.random() * (canvas.width - boyut);
+    
+    // Meteorların %30'u zorlu olsun (2 ile 4 arası canı olsun), kalanı 1 canlı olsun.
+    let meteorCani = 1;
+    if (Math.random() < 0.3) {
+        meteorCani = Math.floor(Math.random() * 3) + 2; // 2, 3 veya 4
+    }
+    
+    meteorlar.push({
+        x: x,
+        y: -boyut,
+        boyut: boyut,
+        hiz: Math.random() * 1 + meteorHizi,
+        can: meteorCani
+    });
+}
+
+function gucOlustur() {
+    let boyut = 30;
+    let x = Math.random() * (canvas.width - boyut);
+    
+    // Güç türünü rastgele seç (3 türden biri)
+    let tipRastgele = Math.random();
+    let tip = '';
+    if (tipRastgele < 0.33) {
+        tip = 'zaman';
+    } else if (tipRastgele < 0.66) {
+        tip = 'mermi';
+    } else {
+        tip = 'uclu_mermi';
+    }
+    
+    gucSimgeleri.push({
+        x: x,
+        y: -boyut,
+        boyut: boyut,
+        hiz: 2,
+        tip: tip
+    });
+}
+
+// 3. Ana Oyun Döngüsü
+function oyun_dongusu() {
+    if (!oyunDevamEdiyor) return;
+
+    // Eğer market açık değilse oyunu güncelle (hareketleri oynat)
+    if (!marketAcik) {
+        guncelle();
+    }
+    
+    // Çizim her zaman çalışsın ki arka planda donmuş uzay görüntüsü kalsın
+    ciz();
+
+    requestAnimationFrame(oyun_dongusu);
+}
+
+function guncelle() {
+    oyunSuresiFrames++;
+    
+    if (oyunSuresiFrames % 60 === 0) {
+        meteorHizi += 0.01;
+    }
+
+    // Özel Güç Sayaçlarını Güncelle
+    if (meteorYavaslaticiSayac > 0) {
+        meteorYavaslaticiSayac--;
+        if (meteorYavaslaticiSayac === 0) meteorHizCarpani = 1;
+    }
+    if (mermiBuffSayac > 0) {
+        mermiBuffSayac--;
+        if (mermiBuffSayac === 0) mermiHizCarpani = 1;
+    }
+    if (ucluMermiSayac > 0) {
+        ucluMermiSayac--;
+    }
+
+    // Momentum Hareketi
+    if (tuslar["ArrowUp"] || tuslar["w"]) roket.vy -= roket.ivme;
+    if (tuslar["ArrowDown"] || tuslar["s"]) roket.vy += roket.ivme;
+    if (tuslar["ArrowLeft"] || tuslar["a"]) roket.vx -= roket.ivme;
+    if (tuslar["ArrowRight"] || tuslar["d"]) roket.vx += roket.ivme;
+
+// Ateş Etme
+    if (tuslar[" "] && sonAtesZamani <= 0 && mermiSayisi >= 1) { 
+        let hizY = 10 * mermiHizCarpani;
+        
+        mermiSayisi -= 1; 
+        atesSonrasiBekleme = 45; 
+        
+        // --- LAZER SESİNİ ÇALDIR ---
+        lazerSesi.currentTime = 0; 
+        lazerSesi.play(); 
+
+        const kediSesi = new Audio('sounds/meowsound.mp3');
+        kediSesi.volume = 0.2; // %40 ses seviyesi
+        
+        if (ucluMermiSayac > 0) {
+            // 3 mermi at
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 2, y: roket.y, boyutX: 4, boyutY: 15, hiz: hizY }); 
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 15, y: roket.y + 10, boyutX: 4, boyutY: 15, hiz: hizY }); 
+            mermiler.push({ x: roket.x + roket.boyut / 2 + 11, y: roket.y + 10, boyutX: 4, boyutY: 15, hiz: hizY }); 
+        } else {
+            // Tek mermi at
+            mermiler.push({ x: roket.x + roket.boyut / 2 - 2, y: roket.y, boyutX: 4, boyutY: 15, hiz: hizY });
+        }
+        sonAtesZamani = atesGecikmesi;
+    }
+    if (sonAtesZamani > 0) sonAtesZamani--;
+
+    // --- LAZER ŞARJ OLMA MANTIĞI ---
+    if (atesSonrasiBekleme > 0) {
+        atesSonrasiBekleme--; // Ateş edildiyse geri sayıma devam et
+    } else if (mermiSayisi < maksMermi) {
+        // Bekleme bittiyse ve enerji ful değilse yavaşça doldur 
+        mermiSayisi += 0.01; // Bu hız saniyede yaklaşık 9 mermi doldurur
+        if (mermiSayisi > maksMermi) {
+            mermiSayisi = maksMermi; // 30'u geçmesini engelle
+        }
+    }
+    // --- GEMİ MÜHENDİSİ PASİF CAN YENİLEME ---
+    if (muhendisAlindi && roket.can < roket.maksCan) {
+        // 60 FPS çalıştığı için saniyede yaklaşık 1.2 can doldurur. İstersen artırabilirsin.
+        roket.can += 0.02; 
+        
+        // Can 100'ü geçmesin diye kontrol
+        if (roket.can > roket.maksCan) {
+            roket.can = roket.maksCan;
+        }
+    }
+
+    roket.vx *= roket.surtunme;
+    roket.vy *= roket.surtunme;
+    roket.x += roket.vx;
+    roket.y += roket.vy;
+
+    // Egzoz Partikülleri
+    if (Math.abs(roket.vx) > 0.5 || Math.abs(roket.vy) > 0.5) {
+        partikulOlustur(roket.x + roket.boyut / 2, roket.y + roket.boyut - 5, "orange", 1);
+    }
+
+    // Ekran Sınırları
+    if (roket.x < 0) { roket.x = 0; roket.vx *= -0.5; }
+    if (roket.y < 0) { roket.y = 0; roket.vy *= -0.5; }
+    if (roket.x + roket.boyut > canvas.width) { roket.x = canvas.width - roket.boyut; roket.vx *= -0.5; }
+    if (roket.y + roket.boyut > canvas.height) { roket.y = canvas.height - roket.boyut; roket.vy *= -0.5; }
+
+    // Yıldızlar
+    yildizlar.forEach(y => {
+        y.y += y.hiz;
+        if (y.y > canvas.height) y.y = 0;
+    });
+
+// Mermiler ve Meteorları Vurma
+    for (let i = 0; i < mermiler.length; i++) {
+        let m = mermiler[i];
+        m.y -= m.hiz;
+        let vuruldu = false;
+
+        for (let j = 0; j < meteorlar.length; j++) {
+            let met = meteorlar[j];
+            
+            // --- MERMİ VE METEOR ÇARPIŞMASI ---
+            if (m.x < met.x + met.boyut && m.x + m.boyutX > met.x &&
+                m.y < met.y + met.boyut && m.y + m.boyutY > met.y) {
+                
+                // Vurulma efekti
+                partikulOlustur(m.x, m.y, "yellow", 5);
+                
+                met.can--; // Meteorun canını düşür
+                if (met.can <= 0) {
+                    partikulOlustur(met.x + met.boyut / 2, met.y + met.boyut / 2, "gray", 15);
+                    meteorlar.splice(j, 1);
+                }
+                
+                vuruldu = true;
+                break; // Bu mermi bir meteora çarptı, diğer meteorlara bakmaya gerek yok
+            }
+        }
+
+        if (vuruldu) {
+            mermiler.splice(i, 1); 
+            i--; 
+            continue;
+        }
+        
+        // Ekrandan çıkan mermileri temizle
+        if (m.y < 0) { 
+            mermiler.splice(i, 1); 
+            i--; 
+        }
+    }
+
+    // Özel Güç Çıkma İhtimali
+    if (Math.random() < 0.002) { gucOlustur(); }
+
+    // Özel Güçlerin Düşmesi ve Toplanması
+    for (let i = 0; i < gucSimgeleri.length; i++) {
+        let g = gucSimgeleri[i];
+        g.y += g.hiz;
+
+        // Roket ile özel güç çarpışması
+        if (roket.x < g.x + g.boyut && roket.x + roket.boyut > g.x &&
+            roket.y < g.y + g.boyut && roket.y + roket.boyut > g.y) {
+            
+            if (g.tip === 'zaman') {
+                meteorHizCarpani = 0.5; 
+                meteorYavaslaticiSayac = 7 * 60; 
+                partikulOlustur(roket.x + roket.boyut / 2, roket.y, "#00c8ff", 20);
+            } else if (g.tip === 'mermi') {
+                mermiHizCarpani = 2; 
+                mermiBuffSayac = 10 * 60; 
+                partikulOlustur(roket.x + roket.boyut / 2, roket.y, "#ff3232", 20);
+            } else if (g.tip === 'uclu_mermi') {
+                ucluMermiSayac = 10 * 60; 
+                partikulOlustur(roket.x + roket.boyut / 2, roket.y, "#9b59b6", 20);
+            }
+            
+            gucSimgeleri.splice(i, 1); i--;
+            continue;
+        }
+
+        if (g.y > canvas.height) { gucSimgeleri.splice(i, 1); i--; }
+    }
+
+    // Kedi Toplama ve Hedef Kontrolü
+    if (toplananKediler < hedefKediSayisi && Math.random() < 0.015) { 
+        kediOlustur(); 
+    } else if (toplananKediler >= hedefKediSayisi) {
+        hedef.gorunurMu = true;
+    }
+
+    // Gezegen Hareketi
+    if (hedef.gorunurMu) {
+        hedef.y += 1.2;
+        if (roket.y < hedef.y + hedef.boyut / 2 && Math.abs(roket.x - (canvas.width/2 - roket.boyut/2)) < 200) {
+            seviyeAtla();
+        }
+        if (hedef.y > canvas.height) { 
+            hedef.y = -450;
+        }
+    }
+
+    // Meteorlar
+    if (Math.random() < 0.02) { meteorOlustur(); }
+
+    // Meteor Çarpışma (Guncelle fonksiyonunun içindeki doğru yer)
+    for (let i = 0; i < meteorlar.length; i++) {
+        let m = meteorlar[i];
+        m.y += m.hiz * meteorHizCarpani;
+
+        if (roket.x < m.x + m.boyut && roket.x + roket.boyut > m.x &&
+            roket.y < m.y + m.boyut && roket.y + roket.boyut > m.y) {
+            
+            // --- SESİ BURADA TETİKLİYORUZ ---
+            if (meteorSesi) {
+                meteorSesi.currentTime = 0; // Sesi başa sar (üst üste çarpmalarda önemli)
+                meteorSesi.play().catch(e => console.log("Meteor sesi çalınamadı:", e));
+            }
+
+            roket.can -= 20; 
+            sarsintiSuresi = 10;
+            partikulOlustur(m.x + m.boyut / 2, m.y + m.boyut / 2, "gray", 15);
+            
+            meteorlar.splice(i, 1); 
+            i--;
+            
+            if (roket.can <= 0) { oyunBitti(); return; }
+            continue;
+        }
+        if (m.y > canvas.height) { meteorlar.splice(i, 1); i--; }
+    }
+
+// Kedi Toplama Çarpışma
+    for (let i = 0; i < kediler.length; i++) {
+        let k = kediler[i];
+        k.y += k.hiz;
+
+        if (roket.x < k.x + k.boyut && roket.x + roket.boyut > k.x &&
+            roket.y < k.y + k.boyut && roket.y + roket.boyut > k.y) {
+            
+            // SESİ ÇALDIR (Hata almamak için kontrol ekledik)
+            if(kediSesi) {
+                kediSesi.currentTime = 0;
+                kediSesi.play().catch(e => console.log("Ses hatası:", e));
+            }
+
+            toplananKediler++;
+            partikulOlustur(k.x + k.boyut / 2, k.y + k.boyut / 2, "#f39c12", 10);
+            
+            kediler.splice(i, 1); 
+            i--;
+            continue; // Çarpışma olduysa alt satırı (ekran sınırını) kontrol etme, bir sonrakine geç
+        }
+        
+        if (k.y > canvas.height) { 
+            kediler.splice(i, 1); 
+            i--; 
+        }
+    }
+    // Altın Çıkma İhtimali
+    if (Math.random() < 0.015) { 
+        altinOlustur(); 
+    }
+
+// Altın Hareketi, Mıknatıs ve Çarpışma
+    for (let i = 0; i < altinlar.length; i++) {
+        let a = altinlar[i];
+        
+        // --- UZAY TAHSİLDARI (MIKNATIS) MANTIĞI ---
+        if (tahsildarAlindi) {
+            // Roketin merkezi ile altının merkezi arasındaki mesafeyi ölç
+            let roketMerkezX = roket.x + roket.boyut / 2;
+            let roketMerkezY = roket.y + roket.boyut / 2;
+            let altinMerkezX = a.x + a.boyut / 2;
+            let altinMerkezY = a.y + a.boyut / 2;
+            
+            let dx = roketMerkezX - altinMerkezX;
+            let dy = roketMerkezY - altinMerkezY;
+            let mesafe = Math.sqrt(dx * dx + dy * dy);
+            
+            if (mesafe < 250) { // Altın 250 piksel (menzil) yakındaysa
+                // Altını rokete doğru çek
+                a.x += dx * 0.04; // 0.04 çekim hızı
+                a.y += dy * 0.04;
+            } else {
+                a.y += a.hiz; // Menzilde değilse normal düşmeye devam et
+            }
+        } else {
+            a.y += a.hiz; // Tahsildar alınmadıysa normal düşmeye devam et
+        }
+        
+        // Roket ile altın çarpışması (Toplama)
+        if (roket.x < a.x + a.boyut && roket.x + roket.boyut > a.x &&
+            roket.y < a.y + a.boyut && roket.y + roket.boyut > a.y) {
+            
+            toplananAltin++; 
+            partikulOlustur(a.x + a.boyut / 2, a.y + a.boyut / 2, "gold", 15); 
+            
+            altinlar.splice(i, 1); 
+            i--;
+            continue;
+        }
+        
+        if (a.y > canvas.height) { 
+            altinlar.splice(i, 1); 
+            i--; 
+        }
+    }
+
+    // Partikül Güncelleme
+    for (let i = 0; i < partikuller.length; i++) {
+        let p = partikuller[i];
+        p.x += p.vx; p.y += p.vy; p.omur -= 0.02;
+        if (p.omur <= 0) { partikuller.splice(i, 1); i--; }
+    }
+
+    if (sarsintiSuresi > 0) sarsintiSuresi--;
+
+    // --- CAN UYARI VE MÜHENDİS KONTROLÜ ---
+    if (roket.can < (roket.maksCan * 0.5) && !uyariAktif) {
+        uyariSesi.play().catch(e => console.log("Ses engellendi:", e));
+        uyariAktif = true;
+    } 
+    else if (roket.can >= (roket.maksCan * 0.5) && uyariAktif) {
+        uyariSesi.pause();
+        uyariSesi.currentTime = 0; 
+        uyariAktif = false;
+    }
+
+}
+
+function seviyeAtla() {
+    marketAcik = true; // Oyunu duraklat
+
+    // Marketi görünür yap (Yeni Flexbox sistemiyle)
+    document.getElementById("market-ekrani").style.display = "flex";
+    
+    // UI Değerlerini Güncelle (Altın, Lazer ve Motor Seviyesi)
+    document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+    document.getElementById("lazer-deger-ui").innerText = maksMermi;
+    document.getElementById("motor-seviye-ui").innerText = motorSeviyesi + ". Seviye";
+
+    // Arka planda sahneyi temizle ve yeni bölüme hazırla
+    meteorlar = []; 
+    kediler = []; 
+    mermiler = [];
+    gucSimgeleri = [];
+    altinlar = []; 
+    
+    seviye++;
+    toplananKediler = 0;
+    hedef.gorunurMu = false;
+    hedef.y = -450;
+    
+    // Roketi güvenli bir şekilde başlangıç noktasına al
+    roket.x = canvas.width / 2 - roket.boyut / 2;
+    roket.y = canvas.height / 2 - roket.boyut / 2;
+    roket.vx = 0;
+    roket.vy = 0;
+
+    meteorHizi += 0.25; 
+    roket.can = Math.min(roket.can + 30, 100); // Bölüm sonu küçük bir can desteği
+}
+
+// 5. Çizim Kısmı (Güvenli Çizim Modu)
+function ciz() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    if (sarsintiSuresi > 0) {
+        ctx.translate(Math.random() * 10 - 5, Math.random() * 10 - 5);
+    }
+
+    // Yıldızlar
+    ctx.fillStyle = "white";
+    yildizlar.forEach(y => { ctx.fillRect(y.x, y.y, y.boyut, y.boyut); });
+
+    // Gezegen
+    if (hedef.gorunurMu && gezegenGorseli.complete && gezegenGorseli.naturalWidth !== 0) {
+        ctx.drawImage(gezegenGorseli, (canvas.width / 2) - (hedef.boyut / 2), hedef.y, hedef.boyut, hedef.boyut);
+    }
+
+    // Kediler 
+    kediler.forEach(k => {
+        if (kediGorseli.complete && kediGorseli.naturalWidth !== 0) {
+            ctx.drawImage(kediGorseli, k.x, k.y, k.boyut, k.boyut);
+        }
+    });
+    // Altınları Çiz
+    altinlar.forEach(a => {
+        if (altinGorseli.complete && altinGorseli.naturalWidth !== 0) {
+            ctx.drawImage(altinGorseli, a.x, a.y, a.boyut, a.boyut);
+        }
+    });
+
+// Sol Alta Lazer Sayacı
+    ctx.font = "bold 24px 'Times New Roman'";
+    ctx.textAlign = "left";
+    
+    let gorunenEnerji = Math.floor(mermiSayisi); 
+    
+    if (gorunenEnerji <= 10) {
+        ctx.fillStyle = "#e74c3c"; // Kırmızı uyarı
+    } else {
+        ctx.fillStyle = "#00ffff"; // Lazer rengi
+    }
+    
+     ctx.fillText("Lazer: " + gorunenEnerji + " / " + maksMermi, 20, canvas.height - 30);
+
+    // Özel Güç Simgelerini Çiz
+    gucSimgeleri.forEach(g => {
+        ctx.beginPath();
+        ctx.arc(g.x + g.boyut / 2, g.y + g.boyut / 2, g.boyut / 2, 0, Math.PI * 2);
+        
+        let renk = "";
+        let sembol = "";
+        if (g.tip === 'zaman') { renk = "rgba(0, 200, 255, 0.8)"; sembol = "⏳"; }
+        else if (g.tip === 'mermi') { renk = "rgba(255, 50, 50, 0.8)"; sembol = "🔫"; }
+        else if (g.tip === 'uclu_mermi') { renk = "rgba(155, 89, 182, 0.8)"; sembol = "3x"; }
+
+        ctx.fillStyle = renk;
+        ctx.fill();
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        ctx.fillStyle = "white";
+        ctx.font = "bold 14px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(sembol, g.x + g.boyut / 2, g.y + g.boyut / 2);
+    });
+
+    // Partiküller
+    partikuller.forEach(p => {
+        ctx.globalAlpha = p.omur;
+        ctx.fillStyle = p.renk;
+        ctx.fillRect(p.x, p.y, 3, 3);
+    });
+    ctx.globalAlpha = 1.0;
+
+// Mermileri (Lazerleri) Çiz
+    ctx.fillStyle = "#00ffff"; // Neon mavi lazer rengi
+    ctx.shadowBlur = 10; // Parlama (glow) efekti
+    ctx.shadowColor = "#00ffff";
+    
+    mermiler.forEach(m => {
+        ctx.fillRect(m.x, m.y, m.boyutX, m.boyutY);
+    });
+    
+    ctx.shadowBlur = 0; 
+
+    // Roket 
+    if (roket.resim.complete && roket.resim.naturalWidth !== 0) {
+        ctx.drawImage(roket.resim, roket.x, roket.y, roket.boyut, roket.boyut);
+    }
+
+    // Meteorlar 
+    meteorlar.forEach(meteor => {
+        if (meteorGorseli.complete && meteorGorseli.naturalWidth !== 0) {
+            ctx.drawImage(meteorGorseli, meteor.x, meteor.y, meteor.boyut, meteor.boyut);
+            
+            // Eğer meteorun canı 1'den fazlaysa üzerine canını yazdır
+            if (meteor.can > 1) {
+                ctx.fillStyle = "white";
+                ctx.font = "bold 16px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(meteor.can, meteor.x + meteor.boyut / 2, meteor.y + meteor.boyut / 2);
+            }
+        }
+    });
+
+    ctx.restore();
+
+    // --- UI Elemanları ---
+    // Can Barı
+    ctx.fillStyle = "#333";
+    ctx.fillRect(20, 20, 200, 20);
+    let canOrani = (roket.can / roket.maksCan);
+    ctx.fillStyle = canOrani > 0.4 ? "#2ecc71" : "#e74c3c";
+    ctx.fillRect(20, 20, 200 * canOrani, 20);
+    ctx.strokeStyle = "white";
+    ctx.strokeRect(20, 20, 200, 20);
+
+    // Kedi Sayacı ve Seviye
+    ctx.fillStyle = "white";
+    ctx.font = "bold 20px 'Times New Roman'";
+    ctx.textAlign = "left";
+    ctx.fillText("Toplanan Kediler: " + toplananKediler + " / " + hedefKediSayisi, 20, 65);
+    ctx.fillText("Seviye: " + seviye, 20, 90);
+
+    // Sağ Üste Altın Skoru
+    ctx.fillStyle = "gold";
+    ctx.font = "bold 24px 'Times New Roman'";
+    ctx.textAlign = "right"; // Yazıyı sağa hizala
+    ctx.fillText("Altın: " + toplananAltin, canvas.width - 20, 40);
+    
+    // Geri kalan UI çizimleri için hizalamayı tekrar sola almayı unutma
+    ctx.textAlign = "left";
+    
+    // Aktif Güç Göstergeleri
+    let uiY = 120; // Güç göstergelerinin alt alta düzgün dizilmesi için
+    if (meteorYavaslaticiSayac > 0) {
+        ctx.fillStyle = "#00c8ff";
+        ctx.fillText("Zaman Yavaşlatıldı: " + Math.ceil(meteorYavaslaticiSayac / 60) + "s", 20, uiY);
+        uiY += 25;
+    }
+    if (mermiBuffSayac > 0) {
+        ctx.fillStyle = "#ff3232";
+        ctx.fillText("Hızlı Mermi: " + Math.ceil(mermiBuffSayac / 60) + "s", 20, uiY);
+        uiY += 25;
+    }
+    if (ucluMermiSayac > 0) {
+        ctx.fillStyle = "#9b59b6";
+        ctx.fillText("Üçlü Mermi: " + Math.ceil(ucluMermiSayac / 60) + "s", 20, uiY);
+    }
+    
+    if (hedef.gorunurMu) {
+        ctx.fillStyle = "#f1c40f";
+        ctx.textAlign = "center";
+        ctx.fillText("GEZEGEN GÖRÜNDÜ! KEDİLERİ ULAŞTIR!", canvas.width / 2, 100);
+    }
+}
+        
+function oyunBitti() {
+    oyunDevamEdiyor = false;
+    alert("Meteor çarptı! Görev başarısız.");
+    location.reload(); 
+}
+
+// --- MARKET FONKSİYONLARI ---
+
+function gemiGelistirmeAc() {
+    document.getElementById("market-ana-menu").style.display = "none";
+    document.getElementById("gelistirme-menu").style.display = "block"; // Burayı block yaptık
+    
+    document.getElementById("lazer-deger-ui").innerText = maksMermi;
+    document.getElementById("motor-seviye-ui").innerText = motorSeviyesi + ". Seviye";
+}
+
+function gemiGelistirmeKapat() {
+    // Geliştirme menüsünü gizle, ana menüye dön
+    document.getElementById("gelistirme-menu").style.display = "none";
+    document.getElementById("market-ana-menu").style.display = "flex";
+}
+
+function lazerKapasiteArttir() {
+    if (toplananAltin >= 10) {
+        toplananAltin -= 10;
+        maksMermi += 10;
+        mermiSayisi = maksMermi; // Lazer kapasitesi artınca enerjiyi de fuller
+        
+        // UI Güncelle
+        document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+        document.getElementById("lazer-deger-ui").innerText = maksMermi;
+    } else {
+        alert("Yeterli altının yok!");
+    }
+}
+function saticiAc() {
+    document.getElementById("market-ana-menu").style.display = "none";
+    document.getElementById("satici-menu").style.display = "block"; // Burayı da block yaptık
+}
+
+function saticiKapat() {
+    document.getElementById("satici-menu").style.display = "none";
+    document.getElementById("market-ana-menu").style.display = "flex";
+}
+
+function muhendisAl() {
+    if (muhendisAlindi) {
+        alert("Bu elemanı zaten işe aldın, gemide çalışıyor!");
+        return;
+    }
+    
+    if (toplananAltin >= 20) {
+        toplananAltin -= 20;
+        muhendisAlindi = true;
+        
+        // UI Güncelle: Altını düş ve butonu "Satın Alındı" yapıp devre dışı bırak
+        document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+        document.getElementById("muhendis-btn").innerText = "İşe Alındı!";
+        document.getElementById("muhendis-btn").style.backgroundColor = "#7f8c8d";
+        document.getElementById("muhendis-btn").style.cursor = "not-allowed";
+        
+    } else {
+        alert("Yeterli altının yok!");
+    }
+}
+function tahsildarAl() {
+    if (tahsildarAlindi) {
+        alert("Bu tahsildar zaten gemide çalışıyor!");
+        return;
+    }
+    
+    if (toplananAltin >= 30) {
+        toplananAltin -= 30;
+        tahsildarAlindi = true;
+        
+        // UI Güncelle
+        document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+        document.getElementById("tahsildar-btn").innerText = "İşe Alındı!";
+        document.getElementById("tahsildar-btn").style.backgroundColor = "#7f8c8d";
+        document.getElementById("tahsildar-btn").style.cursor = "not-allowed";
+        
+    } else {
+        alert("Yeterli altının yok!");
+    }
+}
+
+function gemiHiziArttir() {
+    if (toplananAltin >= 10) {
+        toplananAltin -= 10;
+        roket.ivme += 0.01; // Arka planda gemi ivmesini artır
+        motorSeviyesi++;    // Oyuncunun gördüğü seviyeyi artır
+        
+        // UI Güncelle
+        document.getElementById("market-altin-gosterge").innerText = "Altın: " + toplananAltin;
+        document.getElementById("motor-seviye-ui").innerText = motorSeviyesi + ". Seviye";
+    } else {
+        alert("Yeterli altının yok!");
+    }
+}
+
+function saticiAc() {
+    // Ana menüyü gizle, satıcı menüsünü aç
+    document.getElementById("market-ana-menu").style.display = "none";
+    document.getElementById("satici-menu").style.display = "block";
+}
+
+function yeniBolumeGec() {
+    // Menüleri resetle (bir sonraki stage sonu ana menüden başlasın)
+    gemiGelistirmeKapat();
+    saticiKapat(); // <-- İŞTE EKLENMESİ GEREKEN KISIM BURASIYDI
+    
+    document.getElementById("market-ekrani").style.display = "none";
+    marketAcik = false; 
+    partikulOlustur(canvas.width / 2, canvas.height / 2, "white", 50);
+}
+    </script>
+</head>
+
+<body>
+
+    <div class="resimler">
+        <img src="images/uzay9.png">
+        <img src="images/uzay_gemisi.png" id="roket_pre">
+        <img src="images/meteor.png" id="meteor_pre">
+        <img src="images/gezegen.png" id="gezegen_pre">
+    </div>
+
+    <div class="arka_plan_animasyon"></div>
+
+    <button class="buton1" onclick="buton_giris()" id="buton_id_1">Oyuna Başla</button>
+
+<div id="market-ekrani">
+    <div class="market-header">
+        <h1 style="color: #00ffff; text-shadow: 0 0 10px #00ffff; margin: 0;">BÖLÜM TAMAMLANDI!</h1>
+        <h2 id="market-altin-gosterge" style="color: gold; margin: 5px 0;">Altın: 0</h2>
+    </div>
+
+    <div class="market-scroll-pencere">
+        <div id="market-ana-menu" class="market-secenekler">
+            <button class="market-buton" onclick="gemiGelistirmeAc()">Gemi Geliştirmesi Yap</button>
+            <button class="market-buton" onclick="saticiAc()">Satıcıya Git</button>
+        </div>
+
+        <div id="gelistirme-menu" style="display: none;">
+            <h2 style="color: #f1c40f;">GEMİ GELİŞTİRMELERİ</h2>
+            <div class="gelistirme-satir">
+                <span>Lazer Kapasitesi: <b id="lazer-deger-ui">30</b></span>
+                <button class="upgrade-btn" onclick="lazerKapasiteArttir()">+10 Kapasite (10 Altın)</button>
+            </div>
+            <div class="gelistirme-satir">
+                <span>İtici Motor Gücü: <b id="motor-seviye-ui">1. Seviye</b></span>
+                <button class="upgrade-btn" onclick="gemiHiziArttir()">İtici Motorları Güçlendir (10 Altın)</button>
+            </div>
+            <button class="geri-don-btn" onclick="gemiGelistirmeKapat()">Geri Dön</button>
+        </div>
+
+        <div id="satici-menu" style="display: none;">
+            <h2 style="color: #e74c3c;">UZAY TÜCCARI</h2>
+            <div class="esya-satir">
+                <div class="esya-resim-bosluk">
+                    <img src="images/muhendis.png" alt="Mühendis">
+                </div> 
+                <div class="esya-bilgi">
+                    <h3 style="margin: 0; color: #3498db;">Gemi Mühendisi</h3>
+                    <p style="margin: 5px 0; font-size: 14px; color: #bdc3c7;">"Geminin anlık tamire mi ihtiyacı var? Tam senlik bir elemanım var."</p>
+                </div>
+                <button class="upgrade-btn" id="muhendis-btn" onclick="muhendisAl()">Satın Al (20 Altın)</button>
+            </div>
+
+            <div class="esya-satir">
+                <div class="esya-resim-bosluk">
+                    <img src="images/tahsildar.png" alt="Tahsildar">
+                </div> 
+                <div class="esya-bilgi">
+                    <h3 style="margin: 0; color: #f39c12;">Uzay Tahsildarı</h3>
+                    <p style="margin: 5px 0; font-size: 14px; color: #bdc3c7;">"Sistemin neresinde olursan ol, vergileri senin için tahsil eden o acımasız asistan."</p>
+                </div>
+                <button class="upgrade-btn" id="tahsildar-btn" onclick="tahsildarAl()">Satın Al (30 Altın)</button>
+            </div>
+            <button class="geri-don-btn" onclick="saticiKapat()">Geri Dön</button>
+        </div>
+    </div>
+
+    <div class="market-footer">
+        <button class="yeni-bolum-buton" onclick="yeniBolumeGec()">Yeni Bölüme Geç ➔</button>
+    </div>
+</div>
+
+        </div>
+
+<div id="satici-menu" style="display: none; margin-top: 20px; max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+            <h2 style="color: #e74c3c;">UZAY TÜCCARI</h2>
+            
+            <div class="esya-satir">
+                <div class="esya-resim-bosluk"></div> 
+                
+                <div class="esya-bilgi">
+                    <h3 style="margin: 0; color: #3498db;">Gemi Mühendisi</h3>
+                    <p style="margin: 5px 0; font-size: 14px; color: #bdc3c7;">"Geminin anlık tamire mi ihtiyacı var? Tam senlik bir elemanım var."</p>
+                </div>
+                
+                <button class="upgrade-btn" id="muhendis-btn" onclick="muhendisAl()">Satın Al (20 Altın)</button>
+            </div>
+
+            <div class="esya-satir">
+                <div class="esya-resim-bosluk"></div> 
+                
+                <div class="esya-bilgi">
+                    <h3 style="margin: 0; color: #f39c12;">Uzay Tahsildarı</h3>
+                    <p style="margin: 5px 0; font-size: 14px; color: #bdc3c7;">"Sistemin neresinde olursan ol, vergileri ve altınları senin için tahsil eden o acımasız asistan."</p>
+                </div>
+                
+                <button class="upgrade-btn" id="tahsildar-btn" onclick="tahsildarAl()">Satın Al (30 Altın)</button>
+            </div>
+
+            <button class="market-buton" style="margin-top: 20px; margin-bottom: 20px; background-color: #c0392b;" onclick="saticiKapat()">Geri Dön</button>
+        </div>
+    </div>
+
+</body>
+</html>
