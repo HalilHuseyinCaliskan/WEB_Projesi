@@ -60,9 +60,10 @@ paginate: true
 <img width="1916" height="923" alt="Ekran görüntüsü 2026-05-13 123416" src="https://github.com/user-attachments/assets/4efaa489-de38-42be-9d94-ce860b418420" />
 <img width="1919" height="920" alt="Ekran görüntüsü 2026-05-13 123442" src="https://github.com/user-attachments/assets/46bf87f4-3179-40bb-9aa3-76e75a5edbc2" />
 
+## 4. Assetler
+https://kenney.nl/assets/space-shooter-extension
 
-
-## 4. Proje Bağlantıları
+## 5. Proje Bağlantıları
 
 - **Canlıya Alınmış Proje Bağlantısı:**
 
