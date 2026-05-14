@@ -67,7 +67,7 @@ https://kenney.nl/assets/space-shooter-extension
 
 - **Canlıya Alınmış Proje Bağlantısı:**
 
-- **GitHub Repo Bağlantısı:** https://github.com/HalilHuseyinCaliskan/WEB_Projesi
+- **Oyun Bağlantısı:** [https://github.com/HalilHuseyinCaliskan/WEB_Projesi](https://halilhuseyincaliskan.github.io/WEB_Projesi/)
 
 ---
 
