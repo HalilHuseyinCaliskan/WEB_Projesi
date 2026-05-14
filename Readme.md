@@ -63,6 +63,8 @@ paginate: true
 ## 4. Assetler
 https://kenney.nl/assets/space-shooter-extension
 
+https://www.shutterstock.com/video/search/golden-coin-pixel
+
 ## 5. Proje Bağlantıları
 
 - **Canlıya Alınmış Proje Bağlantısı:**
