@@ -73,7 +73,7 @@ https://www.shutterstock.com/video/search/golden-coin-pixel
 
 ---
 
-## 6. Örnek Alınan Oyunnun Bağlantıları
+## 6. Örnek Alınan Oyunun Bağlantıları (Gamejam)
 
 - **Oyun Bağlantısı:** https://cucugamestudio.itch.io/catastrophe
 - **Gamejam Bağlantısı:** https://itch.io/jam/2d-game-jam-2024/results
